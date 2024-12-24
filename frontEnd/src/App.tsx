@@ -1,11 +1,14 @@
 import { BrowserRouter } from 'react-router-dom'
 import { Router } from './routes'
+import { AppThemeProvider } from './shared/contexts/ThemeContext'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Router />
-    </BrowserRouter>
+    <AppThemeProvider>
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </AppThemeProvider>
   )
 }
 
