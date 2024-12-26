@@ -3,7 +3,6 @@ import { blue, grey, indigo } from '@mui/material/colors'
 
 export const Dark = createTheme({
   palette: {
-    mode: 'dark',
     primary: {
       main: blue['A400'],
       dark: blue['A700'],
