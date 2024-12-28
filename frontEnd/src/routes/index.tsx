@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
-import { LogedLayout } from '../shared/layouts/LogedLayout'
+import { LogedLayout } from '../shared/layouts'
 
 export const Router = () => {
   return (
