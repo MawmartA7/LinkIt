@@ -49,7 +49,7 @@ export const Header: React.FC<IHeaderProps> = ({ navItems, logo }) => {
       >
         <Toolbar component="nav">
           <Box
-            onClick={handleClickInLogo}
+            onClick={() => navigate('/')}
             component="img"
             src={logo}
             alt="logo"
