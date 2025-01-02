@@ -21,7 +21,17 @@ export const LogedLayout: React.FC<ILogedLayoutProps> = ({ children }) => {
   return (
     <>
       <Header navItems={navItems} logo={logo} />
-      <Box component="main" pt={11.25}>
+      <Box
+        component="main"
+        sx={{
+          pt: 11.25,
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto'
+        }}
+      >
         {children}
       </Box>
     </>
