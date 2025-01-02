@@ -1,0 +1,121 @@
+package com.linkIt.api.domain.services;
+
+import java.time.LocalDateTime;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.linkIt.api.domain.models.Shortened;
+import com.linkIt.api.domain.models.enums.ShortenedStatus;
+import com.linkIt.api.domain.dtos.shortened.AllShortenedsResponseDTO;
+import com.linkIt.api.domain.dtos.shortened.CreateShortenedRequestDTO;
+import com.linkIt.api.domain.dtos.shortened.DetailsResponseDTO;
+import com.linkIt.api.domain.exceptions.shortened.ShortenedAlreadyExistsException;
+import com.linkIt.api.domain.exceptions.shortened.ShortenedNotFoundException;
+import com.linkIt.api.domain.repositories.ShortenedRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ShortenedService {
+
+    private final ShortenedRepository shortenedRepository;
+
+    @Transactional
+    public void create(CreateShortenedRequestDTO createRequestDTO, String login) {
+
+        String id = createRequestDTO.id();
+
+        if (createRequestDTO.id() == null || createRequestDTO.id().isBlank()) {
+            id = this.generateRandomId();
+        }
+
+        if (this.shortenedRepository.existsById(id)
+                || this.shortenedRepository.existsByAliasAndOwner(createRequestDTO.alias(), login)) {
+            throw new ShortenedAlreadyExistsException();
+        }
+
+        Shortened shortened = new Shortened(id, login, createRequestDTO.url(), createRequestDTO.alias());
+
+        this.shortenedRepository.insert(shortened);
+
+    }
+
+    public DetailsResponseDTO getShortenedDetails(String alias, String login) {
+
+        Shortened shortened = this.shortenedRepository.findByAliasAndOwner(alias, login)
+                .orElseThrow(() -> new ShortenedNotFoundException());
+
+        return new DetailsResponseDTO(shortened);
+
+    }
+
+    @Transactional
+    public void changeStatus(String alias, ShortenedStatus status, String login) {
+        Shortened shortened = this.shortenedRepository.findByAliasAndOwner(alias, login)
+                .orElseThrow(() -> new ShortenedNotFoundException());
+
+        shortened.setStatus(status);
+        shortened.setStatusModifiedAt(LocalDateTime.now());
+
+        this.shortenedRepository.save(shortened);
+    }
+
+    @Transactional
+    public void deleteShortened(String alias, String login) {
+        if (!this.shortenedRepository.existsByAliasAndOwner(alias, login)) {
+            throw new ShortenedNotFoundException();
+        }
+
+        this.shortenedRepository.deleteByAliasAndOwner(alias, login);
+    }
+
+    public AllShortenedsResponseDTO getAllByUser(int page, int size, String login) {
+
+        var pageable = PageRequest.of(page, size, Direction.ASC, "createdAt", "statusModifiedAt");
+        var shorteneds = this.shortenedRepository.findAllByOwner(login, pageable);
+
+        return new AllShortenedsResponseDTO(shorteneds);
+    }
+
+    public AllShortenedsResponseDTO getAll(int page, int size) {
+
+        var pageable = PageRequest.of(page, size, Direction.ASC, "createdAt", "statusModifiedAt");
+        var shorteneds = this.shortenedRepository.findAll(pageable);
+
+        return new AllShortenedsResponseDTO(shorteneds);
+    }
+
+    @Transactional
+    public String redirect(String id) {
+
+        Shortened shortened = this.shortenedRepository.findById(id).orElseThrow(() -> new ShortenedNotFoundException());
+
+        if (shortened.getStatus() != ShortenedStatus.available) {
+            throw new IllegalStateException("Shortened is not available");
+        }
+
+        shortened.setClicks(shortened.getClicks() + 1);
+        shortened.setLastAccessed(LocalDateTime.now());
+
+        this.shortenedRepository.save(shortened);
+
+        return shortened.getOriginalUrl();
+
+    }
+
+    private String generateRandomId() {
+        String id = RandomStringUtils.randomAlphanumeric(4, 6);
+
+        while (this.shortenedRepository.existsById(id)) {
+            id = RandomStringUtils.randomAlphanumeric(4, 6);
+        }
+
+        return id;
+    }
+
+}
