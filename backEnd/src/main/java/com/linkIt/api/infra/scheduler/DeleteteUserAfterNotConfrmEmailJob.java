@@ -29,6 +29,5 @@ public class DeleteteUserAfterNotConfrmEmailJob implements Job {
             }
             emailConfirmationRepository.deleteByEmail(user.getLogin());
         });
-        System.out.println("job completed");
     }
 }

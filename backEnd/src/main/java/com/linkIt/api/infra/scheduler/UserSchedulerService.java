@@ -26,8 +26,6 @@ public class UserSchedulerService {
                     .usingJobData("userId", userId)
                     .build();
 
-            System.out.println(Date.from(date));
-
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity("deleteUserTrigger-" + userId, "DeleteteUserAfterNotConfrmEmail")
                     .startAt(Date.from(date))
