@@ -16,6 +16,7 @@ import com.linkIt.api.domain.exceptions.auth.TokenException;
 import com.linkIt.api.domain.models.User;
 import com.linkIt.api.domain.repositories.UserRepository;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -81,16 +82,17 @@ public class TokenService {
     }
 
     public String getUserLoginByToken(HttpServletRequest request) {
-        var authHeader = request.getHeader("Authorization");
+        Cookie[] cookies = request.getCookies();
 
-        if (authHeader == null)
-            return null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("token")) {
+                String login = this.validateToken(cookie.getValue());
 
-        String token = authHeader.replace("Bearer ", "");
+                return this.userRepository.findByLogin(login).getUsername();
+            }
+        }
 
-        String login = this.validateToken(token);
-
-        return this.userRepository.findByLogin(login).getUsername();
+        return null;
     }
 
     private Instant generateExpirationDate(int expiration) {

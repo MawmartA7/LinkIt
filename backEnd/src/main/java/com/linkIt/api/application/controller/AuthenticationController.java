@@ -1,5 +1,6 @@
 package com.linkIt.api.application.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import com.linkIt.api.domain.dtos.auth.RecoveryPasswordDTO;
 import com.linkIt.api.domain.dtos.auth.TokenResponseDTO;
 import com.linkIt.api.domain.services.AuthenticationService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,11 +30,26 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> login(@RequestBody @Valid AuthDTO loginDTO) {
-        TokenResponseDTO response = this.authenticationService.login(loginDTO);
+    @Value("${api.jwt.expirationInHours}")
+    private int tokenExpirationInHours;
 
-        return ResponseEntity.ok(response);
+    @Value("${app.environment}")
+    private String appEnvironment;
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody @Valid AuthDTO loginDTO,
+            HttpServletResponse response) {
+        TokenResponseDTO token = this.authenticationService.login(loginDTO);
+
+        Cookie cookie = new Cookie("token", token.token());
+
+        cookie.setHttpOnly(true);
+        cookie.setSecure(appEnvironment == "prod" ? true : false);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * tokenExpirationInHours);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")
