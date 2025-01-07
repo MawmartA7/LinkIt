@@ -16,10 +16,11 @@ import com.linkIt.api.domain.dtos.auth.EmailConfirmationDTO;
 import com.linkIt.api.domain.dtos.auth.EmailDTO;
 import com.linkIt.api.domain.dtos.auth.RecoveryCodeDTO;
 import com.linkIt.api.domain.dtos.auth.RecoveryPasswordDTO;
-import com.linkIt.api.domain.dtos.auth.TokenResponseDTO;
+import com.linkIt.api.domain.dtos.auth.TokenDTO;
 import com.linkIt.api.domain.services.AuthenticationService;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,24 +31,31 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-    @Value("${api.jwt.expirationInHours}")
-    private int tokenExpirationInHours;
-
+    @Value("${api.jwt.expirationInMinutes.accessToken}")
+    private int accessTokenExpiration;
+    @Value("${api.jwt.expirationInMinutes.refreshToken}")
+    private int refreshTokenExpiration;
     @Value("${app.environment}")
     private String appEnvironment;
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody @Valid AuthDTO loginDTO,
             HttpServletResponse response) {
-        TokenResponseDTO token = this.authenticationService.login(loginDTO);
+        var tokens = this.authenticationService.login(loginDTO);
 
-        Cookie cookie = new Cookie("token", token.token());
+        TokenDTO accessToken = tokens[0];
 
-        cookie.setHttpOnly(true);
-        cookie.setSecure(appEnvironment == "prod" ? true : false);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * tokenExpirationInHours);
-        response.addCookie(cookie);
+        String accessCookie = createCookie("access_token", accessToken.token(), "/", true,
+                accessTokenExpiration);
+
+        response.addHeader("Set-Cookie", accessCookie);
+
+        TokenDTO refreshToken = tokens[1];
+
+        String refreshCookie = createCookie("refresh_token", refreshToken.token(), "/", true,
+                refreshTokenExpiration);
+
+        response.addHeader("Set-Cookie", refreshCookie);
 
         return ResponseEntity.ok().build();
     }
@@ -85,5 +93,35 @@ public class AuthenticationController {
         this.authenticationService.recoveryPassword(recoveryPasswordDTO);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(HttpServletRequest request, HttpServletResponse response) {
+
+        Cookie[] cookies = request.getCookies();
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("refresh_token")) {
+                TokenDTO accessToken = this.authenticationService
+                        .generateRefreshAccessToken(new TokenDTO(cookie.getValue()));
+
+                String accessCookie = createCookie("access_token", accessToken.token(), "/", true,
+                        accessTokenExpiration);
+
+                response.addHeader("Set-Cookie", accessCookie);
+
+                return ResponseEntity.ok().build();
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    private String createCookie(String name, String value, String path, boolean httpOnly,
+            int maxAgeInMinutes) {
+        return name + "=" + value +
+                "; Path=" + path + ";" + (httpOnly ? "HttpOnly" : "") + ";Secure="
+                + (appEnvironment.equals("prod") ? "true" : "false") +
+                ";Max-Age=" + (60 * maxAgeInMinutes) + ";SameSite=None";
     }
 }

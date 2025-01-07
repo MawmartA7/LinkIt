@@ -34,7 +34,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         var token = this.recoverToken(request);
         if (token != null) {
-            var login = tokenService.validateToken(token);
+            var login = tokenService.validateAccessToken(token);
             if (login == "") {
                 throw new TokenException("Invalid token: " + token);
             }
@@ -54,7 +54,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("token")) {
+            if (cookie.getName().equals("access_token")) {
                 return cookie.getValue();
             }
         }

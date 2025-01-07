@@ -16,15 +16,17 @@ import com.linkIt.api.domain.dtos.auth.AuthDTO;
 import com.linkIt.api.domain.dtos.auth.EmailConfirmationDTO;
 import com.linkIt.api.domain.dtos.auth.EmailDTO;
 import com.linkIt.api.domain.dtos.auth.RecoveryPasswordDTO;
-import com.linkIt.api.domain.dtos.auth.TokenResponseDTO;
+import com.linkIt.api.domain.dtos.auth.TokenDTO;
 import com.linkIt.api.domain.exceptions.auth.EmailConfirmException;
 import com.linkIt.api.domain.exceptions.auth.EmailNotConfirmedException;
 import com.linkIt.api.domain.exceptions.auth.RecoveryPasswordException;
+import com.linkIt.api.domain.exceptions.auth.TokenException;
 import com.linkIt.api.domain.exceptions.auth.UserAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.auth.UserNotFoundException;
 import com.linkIt.api.infra.scheduler.UserSchedulerService;
 import com.linkIt.api.infra.security.TokenService;
 import com.linkIt.api.domain.repositories.EmailConfirmationRepository;
+import com.linkIt.api.domain.repositories.RefreshTokenRepository;
 import com.linkIt.api.domain.repositories.UserRepository;
 import java.time.ZoneOffset;
 
@@ -38,6 +40,8 @@ public class AuthenticationService {
 
     private final UserRepository repository;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
     private final EmailConfirmationRepository emailConfirmationRepository;
 
     private final TokenService tokenService;
@@ -46,7 +50,7 @@ public class AuthenticationService {
 
     private final UserSchedulerService userSchedulerService;
 
-    public TokenResponseDTO login(AuthDTO data) {
+    public TokenDTO[] login(AuthDTO data) {
 
         User user = (User) this.repository.findByLogin(data.login());
 
@@ -61,9 +65,10 @@ public class AuthenticationService {
             throw new EmailNotConfirmedException("Email is not confirmed");
         }
 
-        var token = this.tokenService.generateToken((User) auth.getPrincipal());
-
-        return new TokenResponseDTO(token);
+        var accessToken = this.tokenService.generateAccessToken((User) auth.getPrincipal());
+        String refreshToken = this.tokenService.generateRefreshToken((User) auth.getPrincipal());
+        TokenDTO[] tokens = { new TokenDTO(accessToken), new TokenDTO(refreshToken) };
+        return tokens;
     }
 
     @Transactional
@@ -148,7 +153,7 @@ public class AuthenticationService {
     @Transactional
     public void recoveryPassword(RecoveryPasswordDTO recoveryPasswordDTO) {
 
-        String email = this.tokenService.validateToken(recoveryPasswordDTO.token());
+        String email = this.tokenService.validateAccessToken(recoveryPasswordDTO.token());
 
         User user = (User) this.repository.findByLogin(email);
 
@@ -156,6 +161,25 @@ public class AuthenticationService {
 
         this.repository.save(user);
 
+    }
+
+    public TokenDTO generateRefreshAccessToken(TokenDTO tokenDTO) {
+
+        if (!this.refreshTokenRepository.existsByToken(tokenDTO.token())) {
+            throw new TokenException("Invalid token: " + tokenDTO.token());
+        }
+
+        String login = this.tokenService.validateRefreshToken(tokenDTO.token());
+
+        if (login.isEmpty()) {
+            throw new TokenException("Invalid token: " + tokenDTO.token());
+        }
+
+        User user = (User) this.repository.findByLogin(login);
+
+        String accessToken = this.tokenService.generateAccessToken(user);
+
+        return new TokenDTO(accessToken);
     }
 
 }

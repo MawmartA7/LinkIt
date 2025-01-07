@@ -38,7 +38,7 @@ public class ApiController {
     public ResponseEntity<Void> createShortenedUrl(@RequestBody @Valid CreateShortenedRequestDTO createRequestDTO,
             HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         this.shortenedService.create(createRequestDTO, login);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -48,7 +48,7 @@ public class ApiController {
     public ResponseEntity<DetailsResponseDTO> getShortenedDetails(@PathVariable String alias,
             HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         return ResponseEntity.ok(this.shortenedService.getShortenedDetails(alias, login));
     }
@@ -56,7 +56,7 @@ public class ApiController {
     @PatchMapping("/status/{alias}/available")
     public ResponseEntity<Void> changeToAvailable(@PathVariable String alias, HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         this.shortenedService.changeStatus(alias, ShortenedStatus.available, login);
         return ResponseEntity.noContent().build();
@@ -65,7 +65,7 @@ public class ApiController {
     @PatchMapping("/status/{alias}/disabled")
     public ResponseEntity<Void> changeToDisabled(@PathVariable String alias, HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         this.shortenedService.changeStatus(alias, ShortenedStatus.disabled, login);
         return ResponseEntity.noContent().build();
@@ -74,7 +74,7 @@ public class ApiController {
     @PatchMapping("/status/{alias}/expired")
     public ResponseEntity<Void> changeToExpired(@PathVariable String alias, HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         this.shortenedService.changeStatus(alias, ShortenedStatus.expired, login);
         return ResponseEntity.noContent().build();
@@ -83,7 +83,7 @@ public class ApiController {
     @DeleteMapping("/shorten/{alias}/delete")
     public ResponseEntity<Void> delete(@PathVariable String alias, HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         this.shortenedService.deleteShortened(alias, login);
         return ResponseEntity.noContent().build();
@@ -93,7 +93,7 @@ public class ApiController {
     public ResponseEntity<AllShortenedsResponseDTO> getAll(@RequestParam(name = "page") int page,
             @RequestParam(name = "size", defaultValue = "5") int size, HttpServletRequest request) {
 
-        String login = tokenService.getUserLoginByToken(request);
+        String login = tokenService.getUserLoginByAccessToken(request);
 
         AllShortenedsResponseDTO shorteneds = this.shortenedService.getAllByUser(page, size, login);
         return ResponseEntity.ok(shorteneds);
