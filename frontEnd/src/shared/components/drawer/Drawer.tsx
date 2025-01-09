@@ -23,6 +23,7 @@ interface IDrawerProps {
   navItems: TNavItem[]
   handleClickInLogo: () => void
   handleDrawerToggle: () => void
+  onClickInLogout: () => void
 }
 
 export const Drawer: React.FC<IDrawerProps> = ({
@@ -30,7 +31,8 @@ export const Drawer: React.FC<IDrawerProps> = ({
   logo,
   navItems,
   handleClickInLogo,
-  handleDrawerToggle
+  handleDrawerToggle,
+  onClickInLogout
 }) => {
   return (
     <MUIDrawer
@@ -104,7 +106,10 @@ export const Drawer: React.FC<IDrawerProps> = ({
           }}
         >
           <Button
-            onClick={handleDrawerToggle}
+            onClick={() => {
+              onClickInLogout()
+              handleDrawerToggle()
+            }}
             variant="contained"
             sx={{ width: '80%', borderRadius: 2.5, p: 2 }}
           >

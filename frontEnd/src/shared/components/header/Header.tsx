@@ -12,6 +12,7 @@ import {
   Icon,
   Box
 } from '@mui/material'
+import { useAuthContext } from '../../contexts'
 
 type TNavItem = {
   label: string
@@ -27,6 +28,8 @@ export const Header: React.FC<IHeaderProps> = ({ navItems, logo }) => {
   const navigate = useNavigate()
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  const { logout } = useAuthContext()
 
   const handleDrawerToggle = useCallback(() => {
     setIsDrawerOpen(oldIsDrawerOpen => !oldIsDrawerOpen)
@@ -82,7 +85,10 @@ export const Header: React.FC<IHeaderProps> = ({ navItems, logo }) => {
                   />
                 </Button>
               ))}
-              <Button sx={{ textTransform: 'none', height: '70%' }}>
+              <Button
+                onClick={logout}
+                sx={{ textTransform: 'none', height: '70%' }}
+              >
                 <Typography color="primary" fontWeight={500}>
                   logout
                 </Typography>
@@ -97,6 +103,7 @@ export const Header: React.FC<IHeaderProps> = ({ navItems, logo }) => {
         navItems={navItems}
         handleClickInLogo={handleClickInLogo}
         handleDrawerToggle={handleDrawerToggle}
+        onClickInLogout={logout}
       />
     </>
   )
