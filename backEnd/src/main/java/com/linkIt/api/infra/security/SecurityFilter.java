@@ -14,7 +14,6 @@ import com.linkIt.api.domain.repositories.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +25,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
 
     private final UserRepository userRepository;
+
+    private final CookieService cookieService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
@@ -47,18 +48,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private String recoverToken(HttpServletRequest request) {
-        var cookies = request.getCookies();
-
-        if (cookies == null) {
-            return null;
-        }
-
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("access_token")) {
-                return cookie.getValue();
-            }
-        }
-        return null;
+        return this.cookieService.getCookieValue(request, "access_token");
     }
 
 }
