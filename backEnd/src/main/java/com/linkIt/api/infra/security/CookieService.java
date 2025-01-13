@@ -19,9 +19,9 @@ public class CookieService {
             int maxAgeInMinutes) {
 
         String cookie = name + "=" + value +
-                "; Path=" + path + ";" + (httpOnly ? "HttpOnly" : "") + ";Secure="
-                + (appEnvironment.equals("prod") ? "true" : "false") +
-                ";Max-Age=" + (60 * maxAgeInMinutes) + ";SameSite=None";
+                "; Path=" + path + ";" + (httpOnly ? "HttpOnly;" : "")
+                + (appEnvironment.equals("prod") ? "Secure;" : "") +
+                "Max-Age=" + (60 * maxAgeInMinutes) + ";SameSite=" + (appEnvironment.equals("prod") ? "None;" : "Lax;");
 
         response.addHeader("Set-Cookie", cookie);
     }
