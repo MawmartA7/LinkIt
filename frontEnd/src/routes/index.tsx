@@ -1,7 +1,7 @@
-import { Route, Routes } from 'react-router-dom'
-import { LogedLayout } from '../shared/layouts'
-import { EntryPage, Home } from '../pages'
 import { useAuthContext } from '../shared/contexts/AuthContext'
+import { EntryPage, Home, Login, Register } from '../pages'
+import { LogedLayout, AuthLayout } from '../shared/layouts'
+import { Route, Routes } from 'react-router-dom'
 import { CircularProgress } from '@mui/material'
 
 export const Router = () => {
@@ -9,13 +9,12 @@ export const Router = () => {
 
   return (
     <Routes>
-      {isCheckingAuth && (
+      {isCheckingAuth ? (
         <Route
           path="*"
           element={<CircularProgress variant="indeterminate" />} // Loading page
         />
-      )}
-      {isAuthenticated ? (
+      ) : isAuthenticated ? (
         <>
           <Route
             path="/"
@@ -29,6 +28,22 @@ export const Router = () => {
       ) : (
         <>
           <Route path="*" element={<EntryPage />} />
+          <Route
+            path="/login"
+            element={
+              <AuthLayout>
+                <Login />
+              </AuthLayout>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <AuthLayout>
+                <Register />
+              </AuthLayout>
+            }
+          />
         </>
       )}
     </Routes>

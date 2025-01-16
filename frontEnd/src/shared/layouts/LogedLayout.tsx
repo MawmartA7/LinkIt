@@ -25,7 +25,7 @@ export const LogedLayout: React.FC<ILogedLayoutProps> = ({ children }) => {
         component="main"
         sx={{
           pt: 11.25,
-          height: '100%',
+          height: '100vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

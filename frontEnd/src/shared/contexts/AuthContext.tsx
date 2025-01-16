@@ -10,7 +10,7 @@ import { AuthService } from '../services/AuthService'
 interface IAuthContextData {
   logout: () => void
   isAuthenticated: boolean
-  login: (email: string, password: string) => void
+  login: (email: string, password: string) => string | undefined
   isCheckingAuth: boolean
 }
 
@@ -39,21 +39,32 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
   }, [])
 
   const handleLogin = useCallback((email: string, password: string) => {
+    setIsLoading(true)
+    let errorMessage: string | undefined
     AuthService.login(email, password)
       .then(response => {
         console.log(response)
         if (response === 'success') setIsLoged(true)
       })
-      .catch(console.error)
+      .catch(error => (errorMessage = (error as { message: string }).message))
+      .finally(() => {
+        setIsLoading(false)
+      })
+
+    return errorMessage
   }, [])
 
   const handleLogout = useCallback(() => {
+    setIsLoading(true)
     AuthService.logout()
       .then(response => {
         console.log(response)
         if (response === 'success') setIsLoged(false)
       })
       .catch(console.error)
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [])
 
   return (

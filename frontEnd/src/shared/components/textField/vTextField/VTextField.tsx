@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { TextField, TextFieldProps } from '@mui/material'
-import { TextFieldWithMessage } from '..'
+import { TextFieldWithMessage, TextFieldCustumOutlined } from '../..'
 import { useField } from '@unform/core'
 
 type THelperMessages = {
@@ -10,10 +10,11 @@ type THelperMessages = {
 }
 
 type TVTextFieldProps = Omit<TextFieldProps, 'variant'> & {
-  variant: 'withMessage' | 'filled' | 'outlined' | 'standard'
+  variant: 'withMessage' | 'custumOutlined' | 'filled' | 'outlined' | 'standard'
   name: string
   helperMessages?: THelperMessages
   value?: string
+  endAdornment?: JSX.Element
 
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
@@ -22,6 +23,7 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
   variant,
   name,
   helperMessages = {},
+  endAdornment,
   onChange,
   ...rest
 }) => {
@@ -56,6 +58,16 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
       helperMessages={messages}
       defaultValue={defaultValue}
       clearError={clearError}
+      onChange={onChange}
+      {...rest}
+    />
+  ) : variant === 'custumOutlined' ? (
+    <TextFieldCustumOutlined
+      value={value}
+      error={!!error}
+      setValue={setValue}
+      endAdornment={endAdornment}
+      defaultValue={defaultValue}
       onChange={onChange}
       {...rest}
     />

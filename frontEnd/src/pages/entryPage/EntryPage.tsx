@@ -1,29 +1,30 @@
+import { useNavigate } from 'react-router-dom'
 import {
-  Box,
-  Button,
+  useMediaQuery,
   Grid2 as Grid,
   Typography,
-  useMediaQuery,
-  useTheme
+  useTheme,
+  Button,
+  Box
 } from '@mui/material'
-import { useCallback } from 'react'
-import { useAuthContext } from '../../shared/contexts'
 
 export const EntryPage = () => {
   const theme = useTheme()
 
-  const { login } = useAuthContext()
-
   const smDown: boolean = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const handleRegiste = useCallback(() => {}, [])
+  const handleLogin = () => {
+    navigate('/login')
+  }
 
-  const handleLogin = useCallback(() => {
-    login('aaronstewartmartinez@hotmail.com', 'password')
-  }, [login])
+  const handleRegiste = () => {
+    navigate('/register')
+  }
+
+  const navigate = useNavigate()
 
   return (
-    <Grid container direction="column" height="100%" overflow="hidden">
+    <Grid container direction="column" height="100vh" overflow="hidden">
       <Grid height="100%" size={{ sm: 12, md: 5 }}>
         <Box
           sx={{

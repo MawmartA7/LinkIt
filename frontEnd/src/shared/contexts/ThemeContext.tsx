@@ -41,7 +41,7 @@ export const AppThemeProvider: React.FC<IAppThemeProviderProps> = ({
       <ThemeProvider theme={theme}>
         <Box
           width="100vw"
-          height="100vh"
+          minHeight="100vh"
           bgcolor={theme.palette.background.default}
         >
           {children}

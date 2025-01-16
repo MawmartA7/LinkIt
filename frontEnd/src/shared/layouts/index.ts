@@ -1,1 +1,2 @@
-export * from './LogedLayout'
+export * from './LogedLayout.tsx'
+export * from './AuthLayout.tsx'
