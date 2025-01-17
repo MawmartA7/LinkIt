@@ -12,4 +12,6 @@ public interface EmailConfirmationRepository extends MongoRepository<EmailConfir
 
     void deleteByEmail(String email);
 
+    void deleteAllByEmail(String email);
+
 }

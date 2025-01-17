@@ -71,9 +71,16 @@ public class AuthenticationController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<Void> confirmEmail(@RequestParam String email, @RequestParam String confirmationId) {
-        this.authenticationService.confirmEmail(new EmailConfirmationDTO(confirmationId, email));
+    @PostMapping("/email")
+    public ResponseEntity<Void> confirmEmail(@RequestBody EmailConfirmationDTO emailConfirmationDTO) {
+        this.authenticationService.confirmEmail(emailConfirmationDTO);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/email-resend")
+    public ResponseEntity<Void> resendEmailConfirmation(@RequestBody EmailDTO emailDTO) {
+        this.authenticationService.resendEmailConfirmation(emailDTO);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

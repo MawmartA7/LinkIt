@@ -81,7 +81,9 @@ public class AuthenticationService {
 
         User insertedUser = this.repository.insert(newUser);
 
-        EmailConfirmation emailConfirmation = new EmailConfirmation(data.login());
+        String randomDigits = this.createCode();
+
+        EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, data.login());
 
         userSchedulerService.scheduleUserUpdate(insertedUser.getId().toString(),
                 emailConfirmation.getExpiresAt().toInstant(ZoneOffset.of("-03:00")));
@@ -89,7 +91,7 @@ public class AuthenticationService {
         this.emailConfirmationRepository.insert(emailConfirmation);
 
         emailService
-                .sendEmailConfirmation(new EmailConfirmationDTO(emailConfirmation.getId().toString(), data.login()));
+                .sendEmailConfirmation(new EmailConfirmationDTO(randomDigits, data.login()));
 
     }
 
@@ -116,6 +118,26 @@ public class AuthenticationService {
         this.emailConfirmationRepository.delete(emailConfirmation.get());
     }
 
+    public void resendEmailConfirmation(EmailDTO emailDTO) {
+
+        User user = (User) this.repository.findByLogin(emailDTO.email());
+
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+
+        this.emailConfirmationRepository.deleteAllByEmail(user.getLogin());
+
+        String randomDigits = this.createCode();
+
+        EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, user.getLogin());
+
+        userSchedulerService.scheduleUserUpdate(user.getId().toString(),
+                emailConfirmation.getExpiresAt().toInstant(ZoneOffset.of("-03:00")));
+        emailService
+                .sendEmailConfirmation(new EmailConfirmationDTO(randomDigits, user.getLogin()));
+    }
+
     @Transactional
     public void sendRecoveryPassword(EmailDTO emailDTO) {
 
@@ -123,12 +145,7 @@ public class AuthenticationService {
             throw new EmailConfirmException("Email not registered in DB");
         }
 
-        String randomDigits = String.valueOf(new Random().nextInt(10000, 99999));
-
-        do {
-            randomDigits = String.valueOf(new Random().nextInt(10000, 99999));
-
-        } while (this.emailConfirmationRepository.existsById(randomDigits));
+        String randomDigits = this.createCode();
 
         EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, emailDTO.email());
 
@@ -180,6 +197,17 @@ public class AuthenticationService {
         String accessToken = this.tokenService.generateAccessToken(user);
 
         return new TokenDTO(accessToken);
+    }
+
+    private String createCode() {
+        String randomDigits = String.valueOf(new Random().nextInt(10000, 99999));
+
+        do {
+            randomDigits = String.valueOf(new Random().nextInt(10000, 99999));
+
+        } while (this.emailConfirmationRepository.existsById(randomDigits));
+
+        return randomDigits;
     }
 
 }

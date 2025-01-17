@@ -5,16 +5,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+
+    <title>Email Confirmation</title>
 </head>
 
-<body style="background-color: #323232; font-family: 'Inter', Arial, sans-serif; margin: 0; padding: 0; height: 600px;">
+<body style="background-color: #424242; font-family: 'Roboto', Arial, sans-serif; margin: 0; padding: 0; height: 600px;">
     <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0"
-        style="margin: 40px 0; background-color: #323232;">
+        style="margin: 40px 0; background-color: #424242;">
         <tr>
             <td align="center" vertical-align="middle" style="padding: 0;">
                 <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                    style="max-width: 600px; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                    style="max-width: 600px; background-color: #212121; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
                     <!-- Header -->
                     <tr>
                         <td align="center"
@@ -24,18 +26,18 @@
                     </tr>
                     <!-- Body -->
                     <tr>
-                        <td align="center" style="padding: 20px; color: #323232;">
+                        <td align="center" style="padding: 20px; color: #fafafa;">
                             <p style="margin: 0 0 10px;">Hello,</p>
                             <p style="margin: 0 0 20px;">Thank you for registering. To complete the registration
                                 process,
-                                please click the button below to verify your email address:</p>
-                            <!-- Button -->
-                            <table align="center" cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto;">
+                                enter the code below to verify your email address:</p>
+                            <!-- Confirmation Code -->
+                            <table align="center" cellpadding="0" cellspacing="0" border="0"
+                                style="margin: 20px auto; background-color: #424242; border-radius: 5px; padding: 10px;">
                                 <tr>
-                                    <td align="center" style="background-color: #4763E4; border-radius: 5px;">
-                                        <a th:href="${confirmationLink}"
-                                            style="display: inline-block; color: #ffffff; text-decoration: none; padding: 15px 25px; font-size: 16px;">Verify
-                                            Email</a>
+                                    <td th:text="${confirmationCode}" align="center"
+                                        style="font-size: 24px; font-weight: bold; color: #4763E4; letter-spacing: 10px;">
+                                        code
                                     </td>
                                 </tr>
                             </table>
@@ -45,8 +47,35 @@
                     </tr>
                     <!-- Footer -->
                     <tr>
-                        <td align="center" style="padding: 20px; font-size: 12px; color: #888888;">
-                            <p style="margin: 0;">&copy; 2024 LinkIt. All rights reserved.</p>
+                        <td align="center" style="padding: 20px; font-size: 12px;">
+                            <p style="margin: 0; color: rgba(255, 255, 255, 0.75)">&copy; 2024 LinkIt. </p>
+                            <p style="color: rgba(255, 255, 255, 0.75)"> <a href="
+                                https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer"
+                                    style="
+                                    margin: 0;
+                                    font-family: 'Roboto', Arial, sans-serif;
+                                    font-weight: 400;
+                                    font-size: rem;
+                                    line-height: 1.5;
+                                    letter-spacing: 0.00938em;
+                                    color: #4763E4;
+                                    -webkit-text-decoration: underline;
+                                    text-decoration: underline;
+                                    cursor: pointer;
+                                ">GNU Affero General Public License v3.0</a>. The source
+                                code is available on <a href="https://github.com/MawmartA7/LinkIt" target="_blank"
+                                    rel="noopener noreferrer" style="
+                                margin: 0;
+                                font-family: 'Roboto', Arial, sans-serif;
+                                font-weight: 400;
+                                font-size: rem;
+                                line-height: 1.5;
+                                letter-spacing: 0.00938em;
+                                color: #4763E4;
+                                -webkit-text-decoration: underline;
+                                text-decoration: underline;
+                                cursor: pointer;
+                            ">GitHub</a></p>
                         </td>
                     </tr>
                 </table>

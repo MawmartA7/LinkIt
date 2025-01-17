@@ -33,8 +33,7 @@ public class EmailService {
             helper.setFrom("link.it@zohomail.com");
 
             Context context = new Context();
-            context.setVariable("confirmationLink", ApiController.API_URL + "/auth/email" + "?email="
-                    + emailConfirmationDTO.email() + "&confirmationId=" + emailConfirmationDTO.id());
+            context.setVariable("confirmationCode", emailConfirmationDTO.id());
 
             String htmlContent = templateEngine.process("confirmEmailMessage", context);
 
