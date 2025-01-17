@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { TextLink } from '../../shared/components/textLink/TextLink'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
-import { useNavigate } from 'react-router-dom'
 import {
   SnackbarCloseReason,
   Typography,
@@ -25,7 +24,6 @@ export const Register = () => {
   const [errorMessage, setErrorMessage] = useState<string>()
 
   const { formRef, save } = useVForm()
-  const navigate = useNavigate()
 
   const handleRegister = (data: IRegisterData) => {
     console.log(data)
@@ -134,16 +132,7 @@ export const Register = () => {
           Register
         </Button>
         <Typography variant="body1" color="primary" textAlign="center">
-          You already have an account?{' '}
-          <Typography
-            variant="body1"
-            component="a"
-            color="secondary"
-            sx={{ textDecoration: 'underline', cursor: 'pointer' }}
-            onClick={() => navigate('/login')}
-          >
-            Login
-          </Typography>
+          You already have an account? <TextLink href="/login">Login</TextLink>
         </Typography>
       </Box>
       <Snackbar
