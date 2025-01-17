@@ -2,7 +2,7 @@ import { useAuthContext } from '../shared/contexts/AuthContext'
 import { EntryPage, Home, Login, Register } from '../pages'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
 import { Route, Routes } from 'react-router-dom'
-import { CircularProgress } from '@mui/material'
+import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 
 export const Router = () => {
   const { isAuthenticated, isCheckingAuth } = useAuthContext()
@@ -10,10 +10,7 @@ export const Router = () => {
   return (
     <Routes>
       {isCheckingAuth ? (
-        <Route
-          path="*"
-          element={<CircularProgress variant="indeterminate" />} // Loading page
-        />
+        <Route path="*" element={<LoadingPage />} />
       ) : isAuthenticated ? (
         <>
           <Route
