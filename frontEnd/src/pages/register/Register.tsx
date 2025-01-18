@@ -4,6 +4,7 @@ import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
 import {
   SnackbarCloseReason,
+  CircularProgress,
   Typography,
   IconButton,
   Snackbar,
@@ -12,6 +13,7 @@ import {
   Icon,
   Box
 } from '@mui/material'
+import { useAuthContext } from '../../shared/contexts'
 
 interface IRegisterData {
   email: string
@@ -24,6 +26,8 @@ export const Register = () => {
   const [errorMessage, setErrorMessage] = useState<string>()
 
   const { formRef, save } = useVForm()
+
+  const { isCheckingAuth } = useAuthContext()
 
   const handleRegister = (data: IRegisterData) => {
     console.log(data)
@@ -76,12 +80,14 @@ export const Register = () => {
           name="email"
           label="E-mail"
           placeholder="example@email.com"
+          disabled={isCheckingAuth}
         />
         <VTextField
           variant="custumOutlined"
           name="password"
           label="Password"
           placeholder="********"
+          disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
             <IconButton onClick={() => setIsPasswordVisible(old => !old)}>
@@ -102,6 +108,7 @@ export const Register = () => {
           name="confirmPassword"
           label="Confirm password"
           placeholder="********"
+          disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
             <IconButton onClick={() => setIsPasswordVisible(old => !old)}>
@@ -120,6 +127,7 @@ export const Register = () => {
         <Button
           variant="contained"
           color="secondary"
+          disabled={isCheckingAuth}
           fullWidth
           sx={theme => ({
             mt: 1,
@@ -129,7 +137,7 @@ export const Register = () => {
           })}
           onClick={save}
         >
-          Register
+          {isCheckingAuth ? <CircularProgress size={24} /> : 'Register'}
         </Button>
         <Typography variant="body1" color="primary" textAlign="center">
           You already have an account? <TextLink href="/login">Login</TextLink>

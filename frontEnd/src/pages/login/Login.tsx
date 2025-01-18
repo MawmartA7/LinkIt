@@ -6,6 +6,7 @@ import { useVForm, VForm } from '../../shared/forms'
 import { useNavigate } from 'react-router-dom'
 import {
   SnackbarCloseReason,
+  CircularProgress,
   IconButton,
   Typography,
   Snackbar,
@@ -26,21 +27,30 @@ export const Login = () => {
 
   const { formRef, save } = useVForm()
 
-  const { login } = useAuthContext()
+  const { login, isCheckingAuth } = useAuthContext()
 
   const navigate = useNavigate()
 
-  const handleLogin = (data: ILoginData) => {
+  const handleLogin = async (data: ILoginData) => {
     console.log(data)
 
-    const response = login('aaronstewartmartinez@hotmail.com', 'password')
+    try {
+      const response = await login(
+        'aaronstewartmartinez@hotmail.com',
+        'password'
+      )
 
-    if (!response) {
-      navigate('/')
-      return
+      console.log(response)
+
+      if (response) {
+        navigate('/')
+        return
+      }
+
+      setErrorMessage('Authentication error')
+    } catch {
+      setErrorMessage('Authentication error')
     }
-
-    setErrorMessage('Authentication error')
   }
 
   const handleCloseSnackBar = (
@@ -90,18 +100,22 @@ export const Login = () => {
           name="email"
           label="E-mail"
           placeholder="example@email.com"
+          disabled={isCheckingAuth}
         />
         <VTextField
           variant="custumOutlined"
           name="password"
           label="Password"
-          placeholder="********"
+          placeholder="•••••••••"
+          disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
             <IconButton onClick={() => setIsPasswordVisible(old => !old)}>
               <Icon
                 sx={theme => ({
-                  'color': '#c5cad3',
+                  'color': isCheckingAuth
+                    ? theme.palette.action.disabled
+                    : '#c5cad3',
                   'mt': -1,
                   '&:hover': { color: theme.palette.secondary.main }
                 })}
@@ -115,6 +129,7 @@ export const Login = () => {
         <Button
           variant="contained"
           color="secondary"
+          disabled={isCheckingAuth}
           fullWidth
           sx={theme => ({
             mt: 1,
@@ -124,7 +139,7 @@ export const Login = () => {
           })}
           onClick={save}
         >
-          Login
+          {isCheckingAuth ? <CircularProgress size={24} /> : 'Login'}
         </Button>
         <Typography variant="body1" color="primary" textAlign="center">
           No have an account? <TextLink href="/register">Register</TextLink>

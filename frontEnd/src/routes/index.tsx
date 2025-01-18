@@ -5,11 +5,11 @@ import { Route, Routes } from 'react-router-dom'
 import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 
 export const Router = () => {
-  const { isAuthenticated, isCheckingAuth } = useAuthContext()
+  const { isAuthenticated, firstLoad } = useAuthContext()
 
   return (
     <Routes>
-      {isCheckingAuth ? (
+      {firstLoad ? (
         <Route path="*" element={<LoadingPage />} />
       ) : isAuthenticated ? (
         <>

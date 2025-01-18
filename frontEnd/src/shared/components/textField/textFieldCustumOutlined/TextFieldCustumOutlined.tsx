@@ -54,6 +54,11 @@ export const TextFieldCustumOutlined: React.FC<
             border:
               '1px solid ' +
               (error ? theme.palette.error.light : theme.palette.secondary.main)
+          },
+          '&.Mui-disabled': {
+            '& fieldset': {
+              borderColor: 'rgba(0, 0, 0, 0.777)'
+            }
           }
         }
       }}
@@ -66,15 +71,11 @@ export const TextFieldCustumOutlined: React.FC<
               color: error
                 ? theme.palette.error.light
                 : theme.palette.secondary.main
+            },
+            '&.Mui-disabled': {
+              WebkitTextFillColor: 'rgba(0, 0, 0, 0.777)',
+              color: 'rgba(0, 0, 0, 0.777)'
             }
-          }
-        },
-        formHelperText: {
-          sx: {
-            display: 'flex',
-            gap: 1,
-            color: '#bbbbbb',
-            mt: -1
           }
         },
         htmlInput: {
@@ -83,6 +84,10 @@ export const TextFieldCustumOutlined: React.FC<
             'color': '#c5cad3',
             '&::placeholder': {
               color: '#c5cad3'
+            },
+            '&.Mui-disabled': {
+              WebkitTextFillColor: 'rgba(0, 0, 0, 0.777)',
+              color: 'rgba(0, 0, 0, 0.777)'
             }
           }
         },
