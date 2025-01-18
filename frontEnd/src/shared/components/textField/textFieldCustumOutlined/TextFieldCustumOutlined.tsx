@@ -4,6 +4,7 @@ import { TextField, TextFieldProps, useTheme } from '@mui/material'
 type TTextFieldCustumOutlinedProps = TextFieldProps & {
   value: string
   error: boolean
+  clearError: () => void
   setValue: React.Dispatch<React.SetStateAction<string>>
   defaultValue: string
   endAdornment?: JSX.Element
@@ -16,6 +17,7 @@ export const TextFieldCustumOutlined: React.FC<
 > = ({
   value,
   error,
+  clearError,
   setValue,
   defaultValue,
   endAdornment,
@@ -30,8 +32,12 @@ export const TextFieldCustumOutlined: React.FC<
       variant="outlined"
       value={value}
       defaultValue={defaultValue}
+      onKeyDown={() => {
+        if (error) clearError()
+      }}
       onChange={e => {
         setValue(e.target.value)
+
         onChange?.(e)
       }}
       fullWidth

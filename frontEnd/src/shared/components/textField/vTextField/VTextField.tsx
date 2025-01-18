@@ -65,6 +65,7 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
     <TextFieldCustumOutlined
       value={value}
       error={!!error}
+      clearError={clearError}
       setValue={setValue}
       endAdornment={endAdornment}
       defaultValue={defaultValue}

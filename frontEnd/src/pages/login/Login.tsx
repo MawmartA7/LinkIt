@@ -4,6 +4,7 @@ import { useAuthContext } from '../../shared/contexts'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
 import { useNavigate } from 'react-router-dom'
+import * as yup from 'yup'
 import {
   SnackbarCloseReason,
   CircularProgress,
@@ -15,6 +16,7 @@ import {
   Icon,
   Box
 } from '@mui/material'
+import { authValidationSchema } from '../../shared/forms/schemas'
 
 interface ILoginData {
   email: string
@@ -35,10 +37,16 @@ export const Login = () => {
     console.log(data)
 
     try {
-      const response = await login(
-        'aaronstewartmartinez@hotmail.com',
-        'password'
-      )
+      const validatedData = await authValidationSchema.validate(data, {
+        abortEarly: false
+      })
+
+      const response = await login(validatedData.email, validatedData.password)
+
+      // const response = await login(
+      //   'aaronstewartmartinez@hotmail.com',
+      //   'password'
+      // )
 
       console.log(response)
 
@@ -46,10 +54,21 @@ export const Login = () => {
         navigate('/')
         return
       }
+      setErrorMessage('Authentication error')
+    } catch (error) {
+      if (error instanceof yup.ValidationError) {
+        const validationErrors: { [key: string]: string } = {}
 
-      setErrorMessage('Authentication error')
-    } catch {
-      setErrorMessage('Authentication error')
+        error.inner.forEach(error => {
+          if (!error.path) return
+          validationErrors[error.path] = error.message
+        })
+        console.log(validationErrors)
+        formRef.current?.setErrors(validationErrors)
+        setErrorMessage('The data should be valid')
+      } else {
+        setErrorMessage('Authentication error')
+      }
     }
   }
 
