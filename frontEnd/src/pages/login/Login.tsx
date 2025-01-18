@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { TextLink } from '../../shared/components/textLink/TextLink'
+import { authValidationSchema } from '../../shared/forms/schemas'
 import { useAuthContext } from '../../shared/contexts'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
@@ -16,7 +17,6 @@ import {
   Icon,
   Box
 } from '@mui/material'
-import { authValidationSchema } from '../../shared/forms/schemas'
 
 interface ILoginData {
   email: string
@@ -34,21 +34,12 @@ export const Login = () => {
   const navigate = useNavigate()
 
   const handleLogin = async (data: ILoginData) => {
-    console.log(data)
-
     try {
       const validatedData = await authValidationSchema.validate(data, {
         abortEarly: false
       })
 
       const response = await login(validatedData.email, validatedData.password)
-
-      // const response = await login(
-      //   'aaronstewartmartinez@hotmail.com',
-      //   'password'
-      // )
-
-      console.log(response)
 
       if (response) {
         navigate('/')
@@ -63,7 +54,6 @@ export const Login = () => {
           if (!error.path) return
           validationErrors[error.path] = error.message
         })
-        console.log(validationErrors)
         formRef.current?.setErrors(validationErrors)
         setErrorMessage('The data should be valid')
       } else {
@@ -125,7 +115,7 @@ export const Login = () => {
           variant="custumOutlined"
           name="password"
           label="Password"
-          placeholder="•••••••••"
+          placeholder="•••••"
           disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
@@ -174,7 +164,7 @@ export const Login = () => {
         onClose={handleCloseSnackBar}
         sx={{
           position: 'absolute',
-          width: 250
+          width: 260
         }}
       >
         <Alert

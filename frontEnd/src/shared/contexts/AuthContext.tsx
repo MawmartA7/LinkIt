@@ -50,7 +50,6 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
     try {
       const response = await AuthService.login(email, password)
 
-      console.log(response)
       if (response instanceof Error) throw response
 
       if (response === 'success') {
@@ -69,7 +68,6 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
     try {
       const response = await AuthService.logout()
 
-      console.log(response)
       if (response === 'success') setIsLoged(false)
     } catch (error) {
       console.error(error)

@@ -86,7 +86,7 @@ export const Register = () => {
           variant="custumOutlined"
           name="password"
           label="Password"
-          placeholder="********"
+          placeholder="•••••"
           disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
@@ -107,7 +107,7 @@ export const Register = () => {
           variant="custumOutlined"
           name="confirmPassword"
           label="Confirm password"
-          placeholder="********"
+          placeholder="•••••"
           disabled={isCheckingAuth}
           type={isPasswordVisible ? 'text' : 'password'}
           endAdornment={
@@ -149,7 +149,7 @@ export const Register = () => {
         onClose={handleCloseSnackBar}
         sx={{
           position: 'absolute',
-          width: 250
+          width: 260
         }}
       >
         <Alert

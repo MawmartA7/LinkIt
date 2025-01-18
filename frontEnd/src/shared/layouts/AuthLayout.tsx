@@ -19,7 +19,8 @@ export const AuthLayout: React.FC<IAuthLayout> = ({ children }) => {
         position: 'relative',
         pb: 10,
         [theme.breakpoints.down('sm')]: {
-          justifyContent: 'flex-start'
+          justifyContent: 'flex-start',
+          pb: 12
         }
       })}
     >
