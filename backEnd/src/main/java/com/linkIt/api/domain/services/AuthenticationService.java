@@ -106,7 +106,7 @@ public class AuthenticationService {
 
         var emailConfirmation = this.emailConfirmationRepository.findByEmail(dto.email());
 
-        if (emailConfirmation.isEmpty() && !emailConfirmation.get().getId().equals(dto.id())) {
+        if (emailConfirmation.isEmpty() || !emailConfirmation.get().getId().equals(dto.id())) {
             throw new EmailConfirmException("Email or confirm id not found");
         }
 
