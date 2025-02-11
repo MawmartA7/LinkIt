@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
-import { TextField, TextFieldProps } from '@mui/material'
 import { TextFieldWithMessage, TextFieldCustumOutlined } from '../..'
+import { TextField, TextFieldProps } from '@mui/material'
 import { useField } from '@unform/core'
 
 type THelperMessages = {
@@ -15,6 +15,8 @@ type TVTextFieldProps = Omit<TextFieldProps, 'variant'> & {
   helperMessages?: THelperMessages
   value?: string
   endAdornment?: JSX.Element
+  maxLength?: number
+  inputType?: 'text' | 'numeric'
 
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
@@ -24,6 +26,8 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
   name,
   helperMessages = {},
   endAdornment,
+  maxLength,
+  inputType,
   onChange,
   ...rest
 }) => {
@@ -68,6 +72,8 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
       clearError={clearError}
       setValue={setValue}
       endAdornment={endAdornment}
+      maxLength={maxLength}
+      inputType={inputType ? inputType : 'text'}
       defaultValue={defaultValue}
       onChange={onChange}
       {...rest}

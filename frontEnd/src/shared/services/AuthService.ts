@@ -46,9 +46,23 @@ const refresh = async () => {
   }
 }
 
+const confirmEmail = async (id: string, email: string) => {
+  try {
+    console.log(id)
+    const response = await Api.post('/auth/email', { id, email })
+
+    if (response.status === 204) return 'success'
+
+    return new Error('Error while confirming email')
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 export const AuthService = {
   login,
   register,
   logout,
-  refresh
+  refresh,
+  confirmEmail
 }

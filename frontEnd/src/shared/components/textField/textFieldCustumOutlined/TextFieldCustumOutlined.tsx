@@ -1,4 +1,3 @@
-import { ChangeEvent } from 'react'
 import { TextField, TextFieldProps, useTheme } from '@mui/material'
 
 type TTextFieldCustumOutlinedProps = TextFieldProps & {
@@ -8,8 +7,12 @@ type TTextFieldCustumOutlinedProps = TextFieldProps & {
   setValue: React.Dispatch<React.SetStateAction<string>>
   defaultValue: string
   endAdornment?: JSX.Element
+  maxLength?: number
+  inputType: 'text' | 'numeric'
 
-  onChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void
 }
 
 export const TextFieldCustumOutlined: React.FC<
@@ -21,6 +24,8 @@ export const TextFieldCustumOutlined: React.FC<
   setValue,
   defaultValue,
   endAdornment,
+  maxLength,
+  inputType,
 
   onChange,
   ...rest
@@ -36,7 +41,11 @@ export const TextFieldCustumOutlined: React.FC<
         if (error) clearError()
       }}
       onChange={e => {
-        setValue(e.target.value)
+        const inputValue = e.target.value
+        if (inputType === 'numeric' && !/^\d*$/.test(inputValue)) {
+          return
+        }
+        setValue(inputValue)
 
         onChange?.(e)
       }}
@@ -85,6 +94,9 @@ export const TextFieldCustumOutlined: React.FC<
           }
         },
         htmlInput: {
+          maxLength: maxLength,
+          inputMode: inputType,
+          pattern: inputType === 'text' ? undefined : '[0-9]*',
           sx: {
             'pt': 1.25,
             'color': '#c5cad3',
