@@ -1,5 +1,6 @@
 package com.linkIt.api.domain.services;
 
+import java.time.ZoneOffset;
 import java.util.Random;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,7 @@ import com.linkIt.api.domain.exceptions.auth.RecoveryPasswordException;
 import com.linkIt.api.domain.exceptions.auth.TokenException;
 import com.linkIt.api.domain.exceptions.auth.UserAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.auth.UserNotFoundException;
+import com.linkIt.api.infra.scheduler.EmailConfirmationSchedulerService;
 import com.linkIt.api.infra.security.TokenService;
 import com.linkIt.api.domain.repositories.EmailConfirmationRepository;
 import com.linkIt.api.domain.repositories.RefreshTokenRepository;
@@ -41,6 +43,8 @@ public class AuthenticationService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final EmailConfirmationRepository emailConfirmationRepository;
+
+    private final EmailConfirmationSchedulerService emailConfirmationSchedulerService;
 
     private final TokenService tokenService;
 
@@ -88,6 +92,8 @@ public class AuthenticationService {
         emailService
                 .sendEmailConfirmation(new EmailConfirmationDTO(randomDigits, data.login()));
 
+        emailConfirmationSchedulerService.scheduleEmailConfirmExpired(emailConfirmation.getEmail(),
+                emailConfirmation.getExpiresAt().toInstant(ZoneOffset.of("-03:00")));
     }
 
     public void userRegister(AuthDTO data) {
