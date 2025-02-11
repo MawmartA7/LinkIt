@@ -27,7 +27,6 @@ public class User implements UserDetails {
 
     private String login;
     private String password;
-    private boolean emailConfirmed = false;
     private UserRole role;
 
     public User(String login, String password, UserRole role) {

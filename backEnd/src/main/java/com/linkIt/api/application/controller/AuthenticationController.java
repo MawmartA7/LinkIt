@@ -3,12 +3,10 @@ package com.linkIt.api.application.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.linkIt.api.domain.dtos.auth.AuthDTO;
@@ -74,13 +72,6 @@ public class AuthenticationController {
     @PostMapping("/email")
     public ResponseEntity<Void> confirmEmail(@RequestBody EmailConfirmationDTO emailConfirmationDTO) {
         this.authenticationService.confirmEmail(emailConfirmationDTO);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @PostMapping("/email-resend")
-    public ResponseEntity<Void> resendEmailConfirmation(@RequestBody EmailDTO emailDTO) {
-        this.authenticationService.resendEmailConfirmation(emailDTO);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -23,12 +23,10 @@ import com.linkIt.api.domain.exceptions.auth.RecoveryPasswordException;
 import com.linkIt.api.domain.exceptions.auth.TokenException;
 import com.linkIt.api.domain.exceptions.auth.UserAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.auth.UserNotFoundException;
-import com.linkIt.api.infra.scheduler.UserSchedulerService;
 import com.linkIt.api.infra.security.TokenService;
 import com.linkIt.api.domain.repositories.EmailConfirmationRepository;
 import com.linkIt.api.domain.repositories.RefreshTokenRepository;
 import com.linkIt.api.domain.repositories.UserRepository;
-import java.time.ZoneOffset;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,11 +46,15 @@ public class AuthenticationService {
 
     private final EmailService emailService;
 
-    private final UserSchedulerService userSchedulerService;
-
     public TokenDTO[] login(AuthDTO data) {
 
         User user = (User) this.repository.findByLogin(data.login());
+
+        EmailConfirmation emailConfirmation = this.emailConfirmationRepository.findByEmail(data.login()).orElse(null);
+
+        if (user == null && emailConfirmation != null) {
+            throw new EmailNotConfirmedException("Email is not confirmed");
+        }
 
         if (user == null) {
             throw new UserNotFoundException("User not found");
@@ -60,10 +62,6 @@ public class AuthenticationService {
 
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        if (user == null || !user.isEmailConfirmed()) {
-            throw new EmailNotConfirmedException("Email is not confirmed");
-        }
 
         var accessToken = this.tokenService.generateAccessToken((User) auth.getPrincipal());
         String refreshToken = this.tokenService.generateRefreshToken((User) auth.getPrincipal());
@@ -79,14 +77,11 @@ public class AuthenticationService {
         String encrypedPassword = new BCryptPasswordEncoder().encode(data.password());
         User newUser = new User(data.login(), encrypedPassword, data.role());
 
-        User insertedUser = this.repository.insert(newUser);
+        this.emailConfirmationRepository.deleteAllByEmail(data.login());
 
         String randomDigits = this.createCode();
 
-        EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, data.login());
-
-        userSchedulerService.scheduleUserUpdate(insertedUser.getId().toString(),
-                emailConfirmation.getExpiresAt().toInstant(ZoneOffset.of("-03:00")));
+        EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, data.login(), newUser);
 
         this.emailConfirmationRepository.insert(emailConfirmation);
 
@@ -110,32 +105,11 @@ public class AuthenticationService {
             throw new EmailConfirmException("Email or confirm id not found");
         }
 
-        User user = (User) this.repository.findByLogin(dto.email());
-
-        user.setEmailConfirmed(true);
+        User user = emailConfirmation.get().getUser();
 
         this.repository.save(user);
+
         this.emailConfirmationRepository.delete(emailConfirmation.get());
-    }
-
-    public void resendEmailConfirmation(EmailDTO emailDTO) {
-
-        User user = (User) this.repository.findByLogin(emailDTO.email());
-
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
-
-        this.emailConfirmationRepository.deleteAllByEmail(user.getLogin());
-
-        String randomDigits = this.createCode();
-
-        EmailConfirmation emailConfirmation = new EmailConfirmation(randomDigits, user.getLogin());
-
-        userSchedulerService.scheduleUserUpdate(user.getId().toString(),
-                emailConfirmation.getExpiresAt().toInstant(ZoneOffset.of("-03:00")));
-        emailService
-                .sendEmailConfirmation(new EmailConfirmationDTO(randomDigits, user.getLogin()));
     }
 
     @Transactional

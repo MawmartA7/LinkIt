@@ -21,16 +21,25 @@ public class EmailConfirmation {
 
     private String email;
 
+    private User user;
+
     private LocalDateTime expiresAt;
 
     public EmailConfirmation(String email) {
         this.email = email;
-        this.expiresAt = LocalDateTime.now().plusMinutes(10);
+        this.expiresAt = LocalDateTime.now().plusMinutes(1);
     }
 
     public EmailConfirmation(String id, String email) {
         this.id = id;
         this.email = email;
-        this.expiresAt = LocalDateTime.now().plusMinutes(10);
+        this.expiresAt = LocalDateTime.now().plusMinutes(1);
+    }
+
+    public EmailConfirmation(String id, String email, User user) {
+        this.id = id;
+        this.email = email;
+        this.user = user;
+        this.expiresAt = LocalDateTime.now().plusMinutes(1);
     }
 }
