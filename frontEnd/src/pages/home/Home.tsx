@@ -1,12 +1,68 @@
 import { useCallback, useState } from 'react'
+import { ShortenService } from '../../shared/services/ShortenService'
+import { createShortenedUrl } from '../../shared/forms/schemas'
 import { Box, Button, Icon, Typography } from '@mui/material'
 import { useVForm, VForm } from '../../shared/forms'
 import { VTextField } from '../../shared/components'
+import { useNavigate } from 'react-router-dom'
+import * as yup from 'yup'
+
+interface ICreateData {
+  url: string
+  alias: string
+  id?: string
+}
 
 export const Home = () => {
   const [IsCustomizeIdOpen, setIsCustomizeIdOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const { formRef, save } = useVForm()
+
+  const navigate = useNavigate()
+
+  const handleSave = useCallback(
+    async (data: ICreateData) => {
+      setIsLoading(true)
+
+      try {
+        const validatedData = await createShortenedUrl.validate(data, {
+          abortEarly: false
+        })
+
+        const response = await ShortenService.create(validatedData)
+
+        if (response === 'success') {
+          navigate('/links')
+          return
+        }
+
+        if (response.message === 'Request failed with status code 409') {
+          formRef.current?.setErrors({
+            alias: 'This alias is already in use'
+          })
+        }
+      } catch (error) {
+        if (error instanceof yup.ValidationError) {
+          const validationErrors: { [key: string]: string } = {}
+
+          error.inner.forEach(error => {
+            if (!error.path) return
+            validationErrors[error.path] = error.message
+          })
+
+          formRef.current?.setErrors(validationErrors)
+        } else {
+          console.error(error)
+        }
+      } finally {
+        setIsLoading(false)
+      }
+      setIsLoading(false)
+      return
+    },
+    [formRef, navigate]
+  )
 
   const handleCustomizeOpenToggle = useCallback(() => {
     setIsCustomizeIdOpen(oldIsCustomizeUrlOpen => !oldIsCustomizeUrlOpen)
@@ -15,8 +71,9 @@ export const Home = () => {
   return (
     <VForm
       ref={formRef}
-      onSubmit={data => {
+      onSubmit={(data: ICreateData) => {
         console.log(data)
+        handleSave(data)
       }}
       placeholder={undefined}
       onPointerEnterCapture={() => {}}
@@ -40,6 +97,7 @@ export const Home = () => {
             }}
             placeholder="https://exemple-long-url.com/extra-LONG"
             name="url"
+            disabled={isLoading}
           />
         </Box>
         <Box display="flex" flexDirection="column" gap={1}>
@@ -48,10 +106,11 @@ export const Home = () => {
             required
             variant="withMessage"
             helperMessages={{
-              validMessage: 'Yeah!  The alias is valid and unique'
+              validMessage: 'Yeah!  The alias is valid'
             }}
             placeholder="Alias"
             name="alias"
+            disabled={isLoading}
           />
         </Box>
         <Box display="flex" flexDirection="column" gap={1}>
@@ -75,10 +134,11 @@ export const Home = () => {
               <VTextField
                 variant="withMessage"
                 helperMessages={{
-                  validMessage: 'Yeah!  The name is valid and unique'
+                  validMessage: 'Yeah!  The name is valid'
                 }}
                 placeholder="Unique-Code"
                 name="id"
+                disabled={isLoading}
               />
             </Box>
           ) : undefined}
@@ -89,6 +149,7 @@ export const Home = () => {
           sx={{ width: '70%', marginX: 'auto', textTransform: 'none' }}
           color="primary"
           variant="contained"
+          disabled={isLoading}
         >
           Link It
         </Button>
