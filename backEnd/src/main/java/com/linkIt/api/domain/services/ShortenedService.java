@@ -30,13 +30,22 @@ public class ShortenedService {
 
         String id = createRequestDTO.id();
 
-        if (createRequestDTO.id() == null || createRequestDTO.id().isBlank()) {
-            id = this.generateRandomId();
+        if (id == null || id.isBlank()) {
+            id = this.generateRandomId(4, 6);
         }
 
-        if (this.shortenedRepository.existsById(id)
-                || this.shortenedRepository.existsByAliasAndOwner(createRequestDTO.alias(), login)) {
+        if (this.shortenedRepository.existsByAliasAndOwner(createRequestDTO.alias(), login)) {
             throw new ShortenedAlreadyExistsException();
+        }
+
+        if (this.shortenedRepository.existsById(id)) {
+            String addOn = this.generateRandomId(1, 3);
+            String possibleId = id + "-" + addOn;
+            while (this.shortenedRepository.existsById(possibleId)) {
+                addOn = this.generateRandomId(1, 3);
+                possibleId = id + "-" + addOn;
+            }
+            id = possibleId;
         }
 
         Shortened shortened = new Shortened(id, login, createRequestDTO.url(), createRequestDTO.alias());
@@ -108,11 +117,11 @@ public class ShortenedService {
 
     }
 
-    private String generateRandomId() {
-        String id = RandomStringUtils.randomAlphanumeric(4, 6);
+    private String generateRandomId(int min, int max) {
+        String id = RandomStringUtils.randomAlphanumeric(min, max);
 
         while (this.shortenedRepository.existsById(id)) {
-            id = RandomStringUtils.randomAlphanumeric(4, 6);
+            id = RandomStringUtils.randomAlphanumeric(min, max);
         }
 
         return id;
