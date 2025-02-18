@@ -1,4 +1,5 @@
 import { TextField, TextFieldProps, useTheme } from '@mui/material'
+import { JSX } from 'react'
 
 type TTextFieldCustumOutlinedProps = TextFieldProps & {
   value: string
@@ -6,6 +7,7 @@ type TTextFieldCustumOutlinedProps = TextFieldProps & {
   clearError: () => void
   setValue: React.Dispatch<React.SetStateAction<string>>
   defaultValue: string
+  startAdornment?: JSX.Element
   endAdornment?: JSX.Element
   maxLength?: number
   inputType: 'text' | 'numeric'
@@ -23,6 +25,7 @@ export const TextFieldCustumOutlined: React.FC<
   clearError,
   setValue,
   defaultValue,
+  startAdornment,
   endAdornment,
   maxLength,
   inputType,
@@ -71,9 +74,7 @@ export const TextFieldCustumOutlined: React.FC<
               (error ? theme.palette.error.light : theme.palette.secondary.main)
           },
           '&.Mui-disabled': {
-            '& fieldset': {
-              borderColor: 'rgba(0, 0, 0, 0.777)'
-            }
+            '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.777)' }
           }
         }
       }}
@@ -100,18 +101,14 @@ export const TextFieldCustumOutlined: React.FC<
           sx: {
             'pt': 1.25,
             'color': '#c5cad3',
-            '&::placeholder': {
-              color: '#c5cad3'
-            },
+            '&::placeholder': { color: '#c5cad3' },
             '&.Mui-disabled': {
               WebkitTextFillColor: 'rgba(0, 0, 0, 0.777)',
               color: 'rgba(0, 0, 0, 0.777)'
             }
           }
         },
-        input: {
-          endAdornment: endAdornment
-        }
+        input: { endAdornment: endAdornment, startAdornment: startAdornment }
       }}
       {...rest}
     />

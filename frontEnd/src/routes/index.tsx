@@ -1,5 +1,5 @@
 import { useAuthContext } from '../shared/contexts/AuthContext'
-import { EntryPage, Home, Login, Register } from '../pages'
+import { EntryPage, Home, Login, Register, Links } from '../pages'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
 import { Route, Routes } from 'react-router-dom'
 import { LoadingPage } from '../pages/loadingPage/LoadingPage'
@@ -18,6 +18,14 @@ export const Router = () => {
             element={
               <LogedLayout>
                 <Home />
+              </LogedLayout>
+            }
+          />
+          <Route
+            path="/links"
+            element={
+              <LogedLayout>
+                <Links />
               </LogedLayout>
             }
           />
