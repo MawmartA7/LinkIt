@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { formatTimeRemaining } from './utils/formatTime'
 import { Environment } from '../../shared/environment'
 import { TableHeader } from './components/TableHeader'
 import { SearchBar } from './components/SearchBar'
 import { useDebounce } from '../../shared/hooks'
-import { formatTimeRemaining } from './utils/formatTime'
 import {
   TableContainer,
   LinearProgress,
@@ -110,10 +110,11 @@ export const Links = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const [rows, setRows] = useState<IRow[]>()
+  const [totalCount, setTotalCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [order, setOrder] = useState<TSortDirection>('desc')
   const [orderBy, setOrderBy] = useState<TSortableColumns>('expiredAt')
-  const { debounce } = useDebounce(1000)
+  const { debounce } = useDebounce(500)
 
   const ROWS_PER_PAGE = Number(Environment.ROWS_PER_PAGE)
 
@@ -132,53 +133,42 @@ export const Links = () => {
   }, [searchParams])
 
   const getRows = useCallback(() => {
-    if (order === 'asc') {
-      setRows(
-        [...data]
-          .filter(link => link.alias.includes(search))
-          .sort((a, b) => a[orderBy] - b[orderBy])
-          .slice(
-            ROWS_PER_PAGE * (page - 1),
-            ROWS_PER_PAGE * (page - 1) + ROWS_PER_PAGE
-          )
-      )
-    } else {
-      setRows(
-        [...data]
-          .filter(link => link.alias.includes(search))
-          .sort((a, b) => b[orderBy] - a[orderBy])
-          .slice(
-            ROWS_PER_PAGE * (page - 1),
-            ROWS_PER_PAGE * (page - 1) + ROWS_PER_PAGE
-          )
-      )
-    }
+    setTimeout(() => {
+      const filteredData = [...data].filter(link => link.alias.includes(search))
 
-    setRows(oldRows => {
-      oldRows?.forEach(oldRow => {
-        formatTimeRemaining(oldRow)
+      const sortedData = filteredData.sort((a, b) => {
+        return order === 'asc'
+          ? a[orderBy] - b[orderBy]
+          : b[orderBy] - a[orderBy]
       })
-      return oldRows
-    })
+
+      const paginatedData = sortedData.slice(
+        ROWS_PER_PAGE * (page - 1),
+        ROWS_PER_PAGE * (page - 1) + ROWS_PER_PAGE
+      )
+
+      setTotalCount(filteredData.length)
+
+      const formattedData = paginatedData.map(row => {
+        const formattedRow = { ...row }
+        formatTimeRemaining(formattedRow)
+        return formattedRow
+      })
+
+      setRows(formattedData)
+      setIsLoading(false)
+    }, 1000)
   }, [ROWS_PER_PAGE, order, orderBy, page, search])
 
   useEffect(() => {
     setIsLoading(true)
-    setTimeout(() => {
-      getRows()
-
-      setIsLoading(false)
-    }, 1000)
-  }, [ROWS_PER_PAGE, getRows, order, orderBy, page])
+    getRows()
+  }, [ROWS_PER_PAGE, order, orderBy, page])
 
   useEffect(() => {
     setIsLoading(true)
-    setTimeout(() => {
-      debounce(getRows)
-
-      setIsLoading(false)
-    }, 1000)
-  }, [debounce, getRows, search])
+    debounce(getRows)
+  }, [debounce, search])
 
   return (
     <TableContainer
@@ -293,7 +283,7 @@ export const Links = () => {
                           { replace: true }
                         )
                       }
-                      count={Math.ceil(data.length / ROWS_PER_PAGE)}
+                      count={Math.ceil(totalCount / ROWS_PER_PAGE)}
                       showFirstButton
                       showLastButton
                       color="primary"
