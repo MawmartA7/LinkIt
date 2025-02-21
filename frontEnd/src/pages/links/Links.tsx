@@ -1,28 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { LinksList, LinksPagination, LinksTable, SearchBar } from './components'
+import { Button, Paper, Icon, useMediaQuery, Theme } from '@mui/material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { formatTimeRemaining } from './utils/formatTime'
 import { Environment } from '../../shared/environment'
-import { TableHeader } from './components/TableHeader'
-import { SearchBar } from './components/SearchBar'
 import { useDebounce } from '../../shared/hooks'
-import {
-  TableContainer,
-  LinearProgress,
-  TableFooter,
-  IconButton,
-  Typography,
-  Pagination,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Avatar,
-  Button,
-  Paper,
-  Table,
-  Icon,
-  Box
-} from '@mui/material'
 
 type TSortDirection = 'asc' | 'desc'
 
@@ -171,148 +153,99 @@ export const Links = () => {
   }, [debounce, search])
 
   return (
-    <TableContainer
-      component={Paper}
-      sx={{
-        height: 'auto',
-        width: '70%',
-        position: 'absolute',
-        top: 'calc(50% - 25%)'
-      }}
-    >
-      <Table stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell
-              colSpan={5}
-              sx={theme => ({
-                bgcolor: theme.palette.background.paper,
-                borderBottom: 'none'
-              })}
-            >
-              <Box display="flex" justifyContent="space-between" width="100%">
-                <Button
-                  onClick={() => navigate('/')}
-                  sx={{ textTransform: 'none', gap: 1 }}
-                >
-                  <Icon fontSize="large">add</Icon>
-                  Add
-                </Button>
-                <SearchBar
-                  search={search}
-                  onSearchChange={value =>
-                    setSearchParams(
-                      { search: value, page: `${page}` },
-                      { replace: true }
-                    )
-                  }
-                />
-              </Box>
-            </TableCell>
-          </TableRow>
-          <TableHeader
-            orderBy={orderBy}
-            order={order}
-            onRequestSort={handleRequestSort}
-          />
-        </TableHead>
-        <TableBody>
-          {rows?.map(row => (
-            <TableRow>
-              <TableCell
-                sx={theme => ({
-                  display: 'flex',
-                  gap: 3,
-                  alignItems: 'center',
-                  borderBottomColor: theme.palette.background.default
-                })}
-              >
-                <Avatar
-                  src={`https://api.faviconkit.com/${row.originalDomain}/128`}
-                />
-                <Typography variant="body1">{row.shortenedUrl}</Typography>
-              </TableCell>
-              <TableCell
-                sx={theme => ({
-                  borderBottomColor: theme.palette.background.default
-                })}
-              >
-                <Typography variant="body1">{row.clicks}</Typography>
-              </TableCell>
-              <TableCell
-                sx={theme => ({
-                  borderBottomColor: theme.palette.background.default
-                })}
-              >
-                <Typography variant="body1">{row.expiredAtFormated}</Typography>
-              </TableCell>
-              <TableCell
-                sx={theme => ({
-                  borderBottomColor: theme.palette.background.default
-                })}
-              >
-                <Typography variant="body1">{row.alias}</Typography>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-
-        <TableFooter>
-          <TableRow>
-            <TableCell
-              colSpan={4}
-              sx={{
-                borderBottom: 'none'
-              }}
-            >
-              <Box display="flex" justifyContent="center" position="relative">
-                {isLoading && (
-                  <LinearProgress
-                    sx={{ width: '70%', height: 4, borderRadius: 10 }}
-                    variant="indeterminate"
-                    color="primary"
-                  />
-                )}
-                {!isLoading && (
-                  <>
-                    <Pagination
-                      page={page}
-                      onChange={(_, newPage) =>
-                        setSearchParams(
-                          { search, page: newPage.toString() },
-                          { replace: true }
-                        )
-                      }
-                      count={Math.ceil(totalCount / ROWS_PER_PAGE)}
-                      showFirstButton
-                      showLastButton
-                      color="primary"
-                      sx={theme => ({
-                        '& .MuiPaginationItem-root': {
-                          color: theme.palette.primary.contrastText
-                        }
-                      })}
-                    />
-                    {!(orderBy === 'expiredAt' && order === 'desc') && (
-                      <IconButton
-                        onClick={() => {
-                          setOrder('desc')
-                          setOrderBy('expiredAt')
-                        }}
-                        sx={{ position: 'absolute', right: 0 }}
-                      >
-                        <Icon fontSize="medium" sx={{ color: '#bbbbbb' }}>
-                          filter_alt_off
-                        </Icon>
-                      </IconButton>
-                    )}
-                  </>
-                )}
-              </Box>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
+    <>
+      <Paper
+        sx={theme => ({
+          bgcolor: theme.palette.background.paper,
+          width: '80%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          borderBottom: 'none',
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          position: 'absolute',
+          top: 'calc(50% - 25% - 64px)',
+          padding: 1,
+          [theme.breakpoints.down('lg')]: {
+            width: '90%'
+          },
+          [theme.breakpoints.down('md')]: {
+            borderRadius: 0,
+            width: '100%',
+            top: 90
+          },
+          [theme.breakpoints.down(400)]: {
+            borderRadius: 0,
+            width: '100%',
+            top: 90,
+            flexDirection: 'column',
+            alignItems: 'center'
+          }
+        })}
+      >
+        <Button
+          onClick={() => navigate('/')}
+          sx={theme => ({
+            textTransform: 'none',
+            gap: 1,
+            [theme.breakpoints.down('sm')]: {}
+          })}
+        >
+          <Icon fontSize="large">add</Icon>
+          Add
+        </Button>
+        <SearchBar
+          search={search}
+          onSearchChange={value =>
+            setSearchParams(
+              { search: value, page: `${page}` },
+              { replace: true }
+            )
+          }
+        />
+      </Paper>
+      {useMediaQuery((theme: Theme) => theme.breakpoints.up('md')) ? (
+        <LinksTable
+          rows={rows}
+          order={order}
+          orderBy={orderBy}
+          onRequestSort={handleRequestSort}
+          onClearSort={() => {
+            setOrder('desc')
+            setOrderBy('expiredAt')
+          }}
+          isLoading={isLoading}
+          pagination={
+            <LinksPagination
+              page={page}
+              totalCount={totalCount}
+              onChange={newPage =>
+                setSearchParams(
+                  { search, page: newPage.toString() },
+                  { replace: true }
+                )
+              }
+            />
+          }
+        />
+      ) : (
+        <LinksList
+          rows={rows}
+          isLoading={isLoading}
+          pagination={
+            <LinksPagination
+              page={page}
+              totalCount={totalCount}
+              onChange={newPage =>
+                setSearchParams(
+                  { search, page: newPage.toString() },
+                  { replace: true }
+                )
+              }
+            />
+          }
+        />
+      )}
+    </>
   )
 }

@@ -8,7 +8,21 @@ interface Props {
 
 export const SearchBar = ({ search, onSearchChange }: Props) => {
   return (
-    <Box width={300} display="flex" alignItems="center" gap={1}>
+    <Box
+      display="flex"
+      alignItems="center"
+      gap={1}
+      sx={theme => ({
+        width: 300,
+        [theme.breakpoints.down('sm')]: {
+          width: 275
+        },
+        [theme.breakpoints.down(400)]: {
+          width: '100%',
+          px: 1
+        }
+      })}
+    >
       <TextFieldCustumOutlined
         defaultValue=""
         value={search}
