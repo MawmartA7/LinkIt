@@ -155,7 +155,7 @@ public class TokenService {
         Cookie[] cookies = request.getCookies();
 
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("token")) {
+            if (cookie.getName().equals("access_token")) {
                 String login = this.validateAccessToken(cookie.getValue());
 
                 return this.userRepository.findByLogin(login).getUsername();

@@ -22,4 +22,7 @@ public interface ShortenedRepository extends MongoRepository<Shortened, String> 
     Page<Shortened> findAll(@NonNull Pageable pageable);
 
     Page<Shortened> findAllByOwner(String owner, PageRequest pageable);
+    
+    Page<Shortened> findAllByOwnerAndAliasContaining(String owner, String alias, PageRequest pageable);
+
 }

@@ -7,11 +7,11 @@ import org.springframework.data.domain.Page;
 
 import com.linkIt.api.domain.models.Shortened;
 
-public record AllShortenedsResponseDTO(int pageNumber, int numbersOfPages,
+public record AllShortenedsResponseDTO(long totalCount,
         List<SimpleShortenedDetailsDTO> shorteneds) {
 
     public AllShortenedsResponseDTO(Page<Shortened> shorteneds) {
-        this(shorteneds.getNumber(), shorteneds.getTotalPages(),
+        this(shorteneds.getTotalElements(),
                 shorteneds.getContent().stream().map(SimpleShortenedDetailsDTO::new).collect(Collectors.toList()));
     }
 

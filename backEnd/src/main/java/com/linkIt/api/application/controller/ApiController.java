@@ -1,5 +1,6 @@
 package com.linkIt.api.application.controller;
 
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.linkIt.api.domain.dtos.shortened.AllShortenedsResponseDTO;
 import com.linkIt.api.domain.dtos.shortened.CreateShortenedRequestDTO;
 import com.linkIt.api.domain.dtos.shortened.DetailsResponseDTO;
+import com.linkIt.api.domain.dtos.shortened.ShortenedSortDTO;
+import com.linkIt.api.domain.models.enums.ShortenedSortable;
 import com.linkIt.api.domain.models.enums.ShortenedStatus;
 import com.linkIt.api.infra.security.TokenService;
 import com.linkIt.api.domain.services.ShortenedService;
@@ -90,12 +93,16 @@ public class ApiController {
     }
 
     @GetMapping("/shortened/all")
-    public ResponseEntity<AllShortenedsResponseDTO> getAll(@RequestParam(name = "page") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size, HttpServletRequest request) {
+    public ResponseEntity<AllShortenedsResponseDTO> getAllBySearch(
+            @RequestParam(name = "search", defaultValue = "") String search, @RequestParam(name = "page") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size,
+            @RequestParam(name = "orderBy", defaultValue = "expiredAt") ShortenedSortable orderBy,
+            @RequestParam(name = "order", defaultValue = "DESC") Direction sortDirection, HttpServletRequest request) {
 
         String login = tokenService.getUserLoginByAccessToken(request);
 
-        AllShortenedsResponseDTO shorteneds = this.shortenedService.getAllByUser(page, size, login);
+        AllShortenedsResponseDTO shorteneds = this.shortenedService.getAllByUserAndSearch(search, page, size,
+                new ShortenedSortDTO(orderBy, sortDirection), login);
         return ResponseEntity.ok(shorteneds);
     }
 

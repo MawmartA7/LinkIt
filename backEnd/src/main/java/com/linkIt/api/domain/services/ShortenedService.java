@@ -13,6 +13,7 @@ import com.linkIt.api.domain.models.enums.ShortenedStatus;
 import com.linkIt.api.domain.dtos.shortened.AllShortenedsResponseDTO;
 import com.linkIt.api.domain.dtos.shortened.CreateShortenedRequestDTO;
 import com.linkIt.api.domain.dtos.shortened.DetailsResponseDTO;
+import com.linkIt.api.domain.dtos.shortened.ShortenedSortDTO;
 import com.linkIt.api.domain.exceptions.shortened.ShortenedAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.shortened.ShortenedNotFoundException;
 import com.linkIt.api.domain.repositories.ShortenedRepository;
@@ -83,12 +84,22 @@ public class ShortenedService {
         this.shortenedRepository.deleteByAliasAndOwner(alias, login);
     }
 
-    public AllShortenedsResponseDTO getAllByUser(int page, int size, String login) {
+    public AllShortenedsResponseDTO getAllByUserAndSearch(String search, int page, int size, ShortenedSortDTO sort,
+            String login) {
 
-        var pageable = PageRequest.of(page, size, Direction.ASC, "createdAt", "statusModifiedAt");
+        var pageable = PageRequest.of(page, size, sort.direction(), sort.orderBy().getFieldName(), "createdAt",
+                "statusModifiedAt");
+
+        if (search.isBlank()) {
         var shorteneds = this.shortenedRepository.findAllByOwner(login, pageable);
+            System.out.println(shorteneds.getContent());
+
+            return new AllShortenedsResponseDTO(shorteneds);
+        } else {
+            var shorteneds = this.shortenedRepository.findAllByOwnerAndAliasContaining(login, search, pageable);
 
         return new AllShortenedsResponseDTO(shorteneds);
+        }
     }
 
     public AllShortenedsResponseDTO getAll(int page, int size) {
