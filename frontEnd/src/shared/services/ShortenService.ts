@@ -1,9 +1,25 @@
 import { Api } from './axios-config'
 
+type TSortDirection = 'asc' | 'desc'
+
+type TSortableColumns = 'clicks' | 'expiredAt'
+
 interface ICreateData {
   id?: string
   url: string
   alias: string
+}
+
+export type TSimpleShorten = {
+  originalDomain: string
+  shortenedUrl: string
+  clicks: number
+  expiredAt: number
+  alias: string
+}
+export interface IAllShorteneds {
+  totalCount: number
+  shorteneds: TSimpleShorten[]
 }
 
 const create = async (data: ICreateData) => {
@@ -17,6 +33,26 @@ const create = async (data: ICreateData) => {
   }
 }
 
+const getAll = async (
+  search: string,
+  page: number,
+  size: number,
+  orderBy: TSortableColumns,
+  order: TSortDirection
+): Promise<IAllShorteneds | Error> => {
+  try {
+    const response = await Api.get(
+      `/api/v1/shortened/all?search=${search}&page=${page}&size=${size}&orderBy=${orderBy}&order=${order.toUpperCase()}`
+    )
+    if (response.status === 200) return response.data
+
+    return new Error('An error occurred while trying to recover all Shorteneds')
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 export const ShortenService = {
-  create
+  create,
+  getAll
 }
