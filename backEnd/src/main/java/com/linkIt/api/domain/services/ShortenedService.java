@@ -81,6 +81,14 @@ public class ShortenedService {
         Shortened shortened = this.shortenedRepository.findByAliasAndOwner(alias, login)
                 .orElseThrow(() -> new ShortenedNotFoundException());
 
+        if (shortened.getStatus().equals(ShortenedStatus.expired) && status.equals(ShortenedStatus.available)) {
+            shortened.setExpiredAt(LocalDateTime.now().plusHours(EXPIRATION_IN_HOURS));
+
+            shortenedSchedulerService.scheduleShortenedExpired(shortened.getId(),
+                    shortened.getExpiredAt().toInstant(ZoneOffset.of("-03:00")));
+
+        }
+
         shortened.setStatus(status);
         shortened.setStatusModifiedAt(LocalDateTime.now());
 
@@ -103,14 +111,13 @@ public class ShortenedService {
                 "statusModifiedAt");
 
         if (search.isBlank()) {
-        var shorteneds = this.shortenedRepository.findAllByOwner(login, pageable);
-            System.out.println(shorteneds.getContent());
+            var shorteneds = this.shortenedRepository.findAllByOwner(login, pageable);
 
             return new AllShortenedsResponseDTO(shorteneds);
         } else {
             var shorteneds = this.shortenedRepository.findAllByOwnerAndAliasContaining(login, search, pageable);
 
-        return new AllShortenedsResponseDTO(shorteneds);
+            return new AllShortenedsResponseDTO(shorteneds);
         }
     }
 
