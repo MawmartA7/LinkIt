@@ -1,8 +1,10 @@
 package com.linkIt.api.domain.services;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import com.linkIt.api.domain.dtos.shortened.ShortenedSortDTO;
 import com.linkIt.api.domain.exceptions.shortened.ShortenedAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.shortened.ShortenedNotFoundException;
 import com.linkIt.api.domain.repositories.ShortenedRepository;
+import com.linkIt.api.infra.scheduler.ShortenedSchedulerService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +28,11 @@ import lombok.RequiredArgsConstructor;
 public class ShortenedService {
 
     private final ShortenedRepository shortenedRepository;
+
+    private final ShortenedSchedulerService shortenedSchedulerService;
+
+    @Value("${api.shortened.expirationInHours}")
+    private int EXPIRATION_IN_HOURS;
 
     @Transactional
     public void create(CreateShortenedRequestDTO createRequestDTO, String login) {
@@ -49,7 +57,11 @@ public class ShortenedService {
             id = possibleId;
         }
 
-        Shortened shortened = new Shortened(id, login, createRequestDTO.url(), createRequestDTO.alias());
+        Shortened shortened = new Shortened(id, login, createRequestDTO.url(), createRequestDTO.alias(),
+                EXPIRATION_IN_HOURS);
+
+        shortenedSchedulerService.scheduleShortenedExpired(id,
+                shortened.getExpiredAt().toInstant(ZoneOffset.of("-03:00")));
 
         this.shortenedRepository.insert(shortened);
 

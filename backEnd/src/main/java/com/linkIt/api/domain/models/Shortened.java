@@ -2,7 +2,6 @@ package com.linkIt.api.domain.models;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -18,9 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document(collection = "shorteneds")
 public class Shortened {
-
-    @Value("${api.shortened.expirationInHours}")
-    public int EXPIRATION_IN_HOURS;
 
     @Id
     private String id;
@@ -48,14 +44,14 @@ public class Shortened {
     @Field(name = "last_accessed")
     private LocalDateTime lastAccessed;
 
-    public Shortened(String id, String owner, String originalUrl, String alias) {
+    public Shortened(String id, String owner, String originalUrl, String alias, int expirationInHours) {
         this.id = id;
         this.owner = owner;
         this.originalUrl = originalUrl;
         this.alias = alias;
         this.status = ShortenedStatus.available;
         this.clicks = 0L;
-        this.expiredAt = LocalDateTime.now().plusHours(EXPIRATION_IN_HOURS);
+        this.expiredAt = LocalDateTime.now().plusHours(expirationInHours);
         this.createdAt = LocalDateTime.now();
         this.statusModifiedAt = null;
         this.lastAccessed = null;
