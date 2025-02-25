@@ -82,10 +82,7 @@ export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
     }
   }
 
-  const handleCloseSnackBar = (
-    event?: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
-  ) => {
+  const handleCloseSnackBar = (reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
     }
@@ -183,14 +180,14 @@ export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
       <Snackbar
         open={!!errorMessage}
         autoHideDuration={10000}
-        onClose={handleCloseSnackBar}
+        onClose={(_, reason) => handleCloseSnackBar(reason)}
         sx={{
           position: 'absolute',
           width: 260
         }}
       >
         <Alert
-          onClose={handleCloseSnackBar}
+          onClose={() => handleCloseSnackBar()}
           severity="error"
           variant="filled"
           sx={{ width: '100%' }}
