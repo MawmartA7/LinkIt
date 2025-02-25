@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { Environment } from '../../environment'
 
 export const Api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: Environment.API_URL,
   withCredentials: true
 })
