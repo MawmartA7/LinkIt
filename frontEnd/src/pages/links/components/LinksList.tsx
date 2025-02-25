@@ -1,14 +1,17 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   LinearProgress,
   ListItemAvatar,
   ListItemButton,
+  useMediaQuery,
   ListItemText,
   Typography,
   Collapse,
   ListItem,
   Avatar,
   Button,
+  Theme,
   Icon,
   List,
   Box
@@ -25,16 +28,24 @@ interface IRow {
 
 interface LinksListProps {
   rows: IRow[] | undefined
+  search: string
   pagination?: React.ReactNode
   isLoading: boolean
 }
 
 export const LinksList: React.FC<LinksListProps> = ({
   rows,
+  search,
   pagination,
   isLoading
 }) => {
   const [linkOpen, setLinkOpen] = useState('')
+
+  const navigate = useNavigate()
+
+  const isDown400Px = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down(400)
+  )
 
   return (
     <List
@@ -54,6 +65,80 @@ export const LinksList: React.FC<LinksListProps> = ({
         }
       })}
     >
+      {!isLoading && rows?.length === 0 && (
+        <ListItem
+          sx={{
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column'
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={theme => ({
+              textAlign: 'center',
+              color: '#bbbbbb',
+              [theme.breakpoints.down(400)]: {
+                fontSize: '1rem'
+              }
+            })}
+          >
+            No links found
+            {search.length > 0 ? (
+              <>
+                {' '}
+                with this search:
+                <Typography
+                  variant="h6"
+                  sx={theme => ({
+                    textAlign: 'center',
+                    color: '#bbbbbb',
+                    [theme.breakpoints.down(400)]: {
+                      fontSize: '1rem'
+                    }
+                  })}
+                >
+                  "{search}"
+                </Typography>
+              </>
+            ) : (
+              <>
+                !{' '}
+                <Typography
+                  variant="h6"
+                  sx={theme => ({
+                    textAlign: 'center',
+                    color: '#bbbbbb',
+                    mb: 1,
+                    [theme.breakpoints.down(400)]: {
+                      fontSize: '1rem',
+                      mb: 2
+                    }
+                  })}
+                >
+                  It looks like you haven't added any links here yet. How about
+                  getting started now?
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/')}
+                  sx={theme => ({
+                    textTransform: 'none',
+                    gap: 1,
+                    [theme.breakpoints.down(400)]: {
+                      fontSize: '0.75rem'
+                    }
+                  })}
+                >
+                  <Icon fontSize={isDown400Px ? 'medium' : 'large'}>add</Icon>
+                  Create a link
+                </Button>
+              </>
+            )}
+          </Typography>
+        </ListItem>
+      )}
       {rows?.map((row, index) => (
         <>
           <ListItemButton

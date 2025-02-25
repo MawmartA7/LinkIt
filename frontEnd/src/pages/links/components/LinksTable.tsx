@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { TableHeader } from './TableHeader'
 import {
   TableContainer,
@@ -10,6 +11,7 @@ import {
   TableHead,
   TableRow,
   Avatar,
+  Button,
   Paper,
   Table,
   Icon,
@@ -31,6 +33,7 @@ interface IRow {
 
 interface ILinksTableProps {
   rows: IRow[] | undefined
+  search: string
   order: TSortDirection
   orderBy: TSortableColumns
   onRequestSort: (property: TSortableColumns) => void
@@ -41,6 +44,7 @@ interface ILinksTableProps {
 
 export const LinksTable: React.FC<ILinksTableProps> = ({
   rows,
+  search,
   order,
   orderBy,
   onRequestSort,
@@ -48,6 +52,8 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
   pagination,
   isLoading
 }) => {
+  const navigate = useNavigate()
+
   const createSortHandler = (property: TSortableColumns) => {
     onRequestSort(property)
   }
@@ -76,6 +82,67 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
           />
         </TableHead>
         <TableBody>
+          {!isLoading && rows?.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                sx={theme => ({
+                  borderBottomColor: theme.palette.background.default
+                })}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    textAlign: 'center',
+                    color: '#bbbbbb'
+                  }}
+                >
+                  No links found
+                  {search.length > 0 ? (
+                    <>
+                      {' '}
+                      with this search:
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textAlign: 'center',
+                          color: '#bbbbbb'
+                        }}
+                      >
+                        "{search}"
+                      </Typography>
+                    </>
+                  ) : (
+                    <>
+                      !{' '}
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          textAlign: 'center',
+                          color: '#bbbbbb',
+                          mb: 2
+                        }}
+                      >
+                        It looks like you haven't added any links here yet. How
+                        about getting started now?
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate('/')}
+                        sx={{
+                          textTransform: 'none',
+                          gap: 1
+                        }}
+                      >
+                        <Icon fontSize="large">add</Icon>
+                        Create a link
+                      </Button>
+                    </>
+                  )}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
           {rows?.map(row => (
             <TableRow>
               <TableCell

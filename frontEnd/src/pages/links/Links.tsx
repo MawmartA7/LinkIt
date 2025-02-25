@@ -142,6 +142,7 @@ export const Links = () => {
       {useMediaQuery((theme: Theme) => theme.breakpoints.up('md')) ? (
         <LinksTable
           rows={rows}
+          search={search}
           order={order}
           orderBy={orderBy}
           onRequestSort={handleRequestSort}
@@ -166,6 +167,7 @@ export const Links = () => {
       ) : (
         <LinksList
           rows={rows}
+          search={search}
           isLoading={isLoading}
           pagination={
             <LinksPagination
