@@ -1,8 +1,15 @@
+import {
+  EntryPage,
+  Home,
+  Login,
+  Register,
+  Links,
+  LinkUnavailable
+} from '../pages'
 import { useAuthContext } from '../shared/contexts/AuthContext'
-import { EntryPage, Home, Login, Register, Links } from '../pages'
+import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
 import { Route, Routes } from 'react-router-dom'
-import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 
 export const Router = () => {
   const { isAuthenticated, firstLoad } = useAuthContext()
@@ -51,6 +58,7 @@ export const Router = () => {
           />
         </>
       )}
+      <Route path="/link-unavailable" element={<LinkUnavailable />} />
     </Routes>
   )
 }
