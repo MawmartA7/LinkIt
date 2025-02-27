@@ -34,6 +34,9 @@ public class ShortenedService {
     @Value("${api.shortened.expirationInHours}")
     private int EXPIRATION_IN_HOURS;
 
+    @Value("${frontend.url}")
+    private String FRONTEND_URL;
+
     @Transactional
     public void create(CreateShortenedRequestDTO createRequestDTO, String login) {
 
@@ -135,7 +138,7 @@ public class ShortenedService {
         Shortened shortened = this.shortenedRepository.findById(id).orElseThrow(() -> new ShortenedNotFoundException());
 
         if (shortened.getStatus() != ShortenedStatus.available) {
-            throw new IllegalStateException("Shortened is not available");
+            return FRONTEND_URL + "/link-unavailable";
         }
 
         shortened.setClicks(shortened.getClicks() + 1);
