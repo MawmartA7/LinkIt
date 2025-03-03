@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { ShortenService } from '../../shared/services/ShortenService'
-import { createShortenedUrl } from '../../shared/forms/schemas'
-import { Box, Button, Icon, Typography } from '@mui/material'
+import { Typography, Button, Icon, Box } from '@mui/material'
+import { shortenUrl } from '../../shared/forms/schemas'
 import { useVForm, VForm } from '../../shared/forms'
 import { VTextField } from '../../shared/components'
 import { useNavigate } from 'react-router-dom'
@@ -16,19 +16,31 @@ interface ICreateData {
 export const Home = () => {
   const [IsCustomizeIdOpen, setIsCustomizeIdOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-
   const { formRef, save } = useVForm()
 
   const navigate = useNavigate()
 
   const handleSave = useCallback(
     async (data: ICreateData) => {
+      const errors = formRef.current?.getErrors()
+
+      if (errors && Object.values(errors).length !== 0) {
+        return
+      }
+
       setIsLoading(true)
 
       try {
-        const validatedData = await createShortenedUrl.validate(data, {
-          abortEarly: false
-        })
+        const validatedData = await shortenUrl.createShortenedLink.validate(
+          data,
+          {
+            abortEarly: false
+          }
+        )
+
+        validatedData.id = validatedData.id
+          ? validatedData.id.trim().replace(/\s+/g, '-')
+          : undefined
 
         const response = await ShortenService.create(validatedData)
 
@@ -38,9 +50,10 @@ export const Home = () => {
         }
 
         if (response.message === 'Request failed with status code 409') {
-          formRef.current?.setErrors({
-            alias: 'This alias is already in use'
-          })
+          formRef.current?.setFieldError(
+            'alias',
+            'This alias is already in use'
+          )
         }
       } catch (error) {
         if (error instanceof yup.ValidationError) {
@@ -98,6 +111,19 @@ export const Home = () => {
             placeholder="https://exemple-long-url.com/extra-LONG"
             name="url"
             disabled={isLoading}
+            onChange={e => {
+              try {
+                shortenUrl.urlIsValid.validateSync(e.target.value)
+
+                formRef.current?.setFieldError('url', '')
+              } catch (error) {
+                if (error instanceof yup.ValidationError) {
+                  formRef.current?.setFieldError('url', error.message)
+                } else {
+                  console.error(error)
+                }
+              }
+            }}
           />
         </Box>
         <Box display="flex" flexDirection="column" gap={1}>
@@ -111,6 +137,23 @@ export const Home = () => {
             placeholder="Alias"
             name="alias"
             disabled={isLoading}
+            onChange={e => {
+              if (e.target.value.length < 5) {
+                formRef.current?.setFieldError(
+                  'alias',
+                  'Ops.  The alias must be at least 5 chars'
+                )
+                return
+              }
+              if (e.target.value.length > 20) {
+                formRef.current?.setFieldError(
+                  'alias',
+                  'Ops. The alias must have a max of 20 chars'
+                )
+                return
+              }
+              formRef.current?.setFieldError('alias', '')
+            }}
           />
         </Box>
         <Box display="flex" flexDirection="column" gap={1}>
@@ -134,11 +177,27 @@ export const Home = () => {
               <VTextField
                 variant="withMessage"
                 helperMessages={{
-                  validMessage: 'Yeah!  The name is valid'
+                  validMessage: 'Yeah!  The ID is valid'
                 }}
                 placeholder="Unique-Code"
                 name="id"
                 disabled={isLoading}
+                onChange={e => {
+                  if (!e.target.value) formRef.current?.setFieldError('id', '')
+                  try {
+                    shortenUrl.urlIdIsValid.validateSync(e.target.value)
+
+                    formRef.current?.setFieldError('id', '')
+                  } catch (error) {
+                    if (error instanceof yup.ValidationError) {
+                      formRef.current?.setFieldError('id', error.message)
+                    }
+
+                    console.error(error)
+
+                    return false
+                  }
+                }}
               />
             </Box>
           ) : undefined}

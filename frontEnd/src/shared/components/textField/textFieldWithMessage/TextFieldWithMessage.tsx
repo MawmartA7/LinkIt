@@ -14,7 +14,6 @@ type TTextFieldWithMessageProps = TextFieldProps & {
   helperMessages: THelperMessages
   defaultValue: string
 
-  clearError: () => void
   onChange?: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
 }
 
@@ -25,7 +24,6 @@ export const TextFieldWithMessage: React.FC<TTextFieldWithMessageProps> = ({
   helperMessages,
   defaultValue,
 
-  clearError,
   onChange,
   ...rest
 }) => {
@@ -66,8 +64,6 @@ export const TextFieldWithMessage: React.FC<TTextFieldWithMessageProps> = ({
         ) : undefined
       }
       onKeyDown={e => {
-        if (error) clearError()
-
         rest.onKeyDown?.(e)
       }}
       value={value}

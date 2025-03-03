@@ -63,7 +63,6 @@ export const VTextField: React.FC<TVTextFieldProps> = ({
       setValue={setValue}
       helperMessages={messages}
       defaultValue={defaultValue}
-      clearError={clearError}
       onChange={onChange}
       {...rest}
     />
