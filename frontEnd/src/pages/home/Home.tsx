@@ -24,7 +24,11 @@ export const Home = () => {
     async (data: ICreateData) => {
       const errors = formRef.current?.getErrors()
 
-      if (errors && Object.values(errors).length !== 0) {
+      if (
+        errors &&
+        Object.values(errors).length !== 0 &&
+        Object.values(errors).every(fieldError => fieldError !== '')
+      ) {
         return
       }
 
@@ -41,6 +45,8 @@ export const Home = () => {
         validatedData.id = validatedData.id
           ? validatedData.id.trim().replace(/\s+/g, '-')
           : undefined
+
+        validatedData.alias = validatedData.alias.trim()
 
         const response = await ShortenService.create(validatedData)
 
