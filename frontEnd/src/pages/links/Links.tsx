@@ -68,8 +68,10 @@ export const Links = () => {
     setTotalCount(response.totalCount)
 
     const rows = response.shorteneds.map(row => {
-      const formattedRow = { ...row }
-      formatTimeRemaining(formattedRow)
+      const formattedRow = { ...row } as IRow
+      formattedRow.expiredAtFormated = formatTimeRemaining(
+        formattedRow.expiredAt
+      )
       return formattedRow
     })
 
