@@ -35,28 +35,44 @@ export const formatTimeRemaining = (
 
 export const formatDate = (
   timestamp: string | number | Date,
-  format: string,
+  format?: string,
   options: IFormatDateOptions = {
     leadingZeros: true
   }
 ) => {
-  const date = new Date(timestamp)
-  const pad = (num: number, length: number = 2) =>
-    options.leadingZeros ? String(num).padStart(length, '0') : String(num)
-
-  const map: { [key: string]: string } = {
-    YYYY: String(date.getFullYear()),
-    YY: String(date.getFullYear()).slice(-2),
-    MM: pad(date.getMonth() + 1),
-    DD: pad(date.getDate()),
-    HH: pad(date.getHours()),
-    mm: pad(date.getMinutes()),
-    ss: pad(date.getSeconds()),
-    SSS: pad(date.getMilliseconds(), 3)
+  if (!timestamp) {
+    return 'Not available yet'
   }
 
-  return format.replace(
-    /YYYY|YY|MM|DD|HH|mm|ss|SSS/g,
-    (match: string) => map[match]
-  )
+  const date = new Date(timestamp)
+
+  if (format) {
+    const pad = (num: number, length: number = 2) =>
+      options.leadingZeros ? String(num).padStart(length, '0') : String(num)
+
+    const map: { [key: string]: string } = {
+      YYYY: String(date.getFullYear()),
+      YY: String(date.getFullYear()).slice(-2),
+      MM: pad(date.getMonth() + 1),
+      DD: pad(date.getDate()),
+      HH: pad(date.getHours()),
+      mm: pad(date.getMinutes()),
+      ss: pad(date.getSeconds()),
+      SSS: pad(date.getMilliseconds(), 3)
+    }
+    return format.replace(
+      /YYYY|YY|MM|DD|HH|mm|ss|SSS/g,
+      (match: string) => map[match]
+    )
+  }
+
+  return Intl.DateTimeFormat(navigator.language, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(date)
 }
