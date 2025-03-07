@@ -185,7 +185,12 @@ export const LinksList: React.FC<LinksListProps> = ({
               Expiration:
             </Typography>
             <Typography>{row.expiredAtFormated}</Typography>
-            <Box mt={1} display="flex" justifyContent="center">
+            <Box
+              mt={1}
+              display="flex"
+              justifyContent="center"
+              onClick={() => navigate('/link-details/' + row.alias)}
+            >
               <Button variant="contained">View more</Button>
             </Box>
           </Collapse>

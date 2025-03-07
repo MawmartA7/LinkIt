@@ -4,7 +4,8 @@ import {
   Login,
   Register,
   Links,
-  LinkUnavailable
+  LinkUnavailable,
+  LinkDetails
 } from '../pages'
 import { useAuthContext } from '../shared/contexts/AuthContext'
 import { LoadingPage } from '../pages/loadingPage/LoadingPage'
@@ -33,6 +34,14 @@ export const Router = () => {
             element={
               <LogedLayout>
                 <Links />
+              </LogedLayout>
+            }
+          />
+          <Route
+            path="/link-details/:alias"
+            element={
+              <LogedLayout>
+                <LinkDetails />
               </LogedLayout>
             }
           />

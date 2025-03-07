@@ -15,7 +15,8 @@ import {
   Paper,
   Table,
   Icon,
-  Box
+  Box,
+  Tooltip
 } from '@mui/material'
 
 type TSortDirection = 'asc' | 'desc'
@@ -225,16 +226,29 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
                   borderBottomColor: theme.palette.background.default
                 })}
               >
-                <Typography
-                  variant="body1"
-                  sx={theme => ({
-                    [theme.breakpoints.down('lg')]: {
-                      fontSize: '0.875rem'
-                    }
-                  })}
-                >
-                  {row.alias}
-                </Typography>
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  <Tooltip title="Open details">
+                    <IconButton
+                      onClick={() => navigate('/link-details/' + row.alias)}
+                    >
+                      <Icon
+                        sx={theme => ({ color: theme.palette.primary.main })}
+                      >
+                        description
+                      </Icon>
+                    </IconButton>
+                  </Tooltip>
+                  <Typography
+                    variant="body1"
+                    sx={theme => ({
+                      [theme.breakpoints.down('lg')]: {
+                        fontSize: '0.875rem'
+                      }
+                    })}
+                  >
+                    {row.alias}
+                  </Typography>
+                </Box>
               </TableCell>
             </TableRow>
           ))}

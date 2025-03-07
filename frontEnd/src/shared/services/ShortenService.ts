@@ -4,6 +4,8 @@ type TSortDirection = 'asc' | 'desc'
 
 type TSortableColumns = 'clicks' | 'expiredAt'
 
+export type TShortenStatus = 'available' | 'disabled' | 'expired'
+
 interface ICreateData {
   id?: string
   url: string
@@ -17,6 +19,18 @@ export type TSimpleShorten = {
   expiredAt: number
   alias: string
 }
+
+export interface IShortenedDetails {
+  originalUrl: string
+  shortenedUrl: string
+  status: TShortenStatus
+  clicks: number
+  expiredAt: number
+  createdAt: number
+  lastAccessed: number
+  statusModifiedAt: number
+}
+
 export interface IAllShorteneds {
   totalCount: number
   shorteneds: TSimpleShorten[]
@@ -52,7 +66,23 @@ const getAll = async (
   }
 }
 
+const getByAlias = async (
+  alias: string
+): Promise<IShortenedDetails | Error> => {
+  try {
+    const response = await Api.get(`/api/v1/details/${alias}`)
+    if (response.status === 200) return response.data
+
+    return new Error(
+      'An error occurred while trying to recover Shortened details'
+    )
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 export const ShortenService = {
   create,
-  getAll
+  getAll,
+  getByAlias
 }
