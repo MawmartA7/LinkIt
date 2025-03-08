@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { LinkDetailsControl } from './components/LinkDetailsConfig'
-import { LinkDetailsGrid } from './components/LinkDetailsGrid'
 import { formatDate } from '../../shared/utils/formatTime'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { LoadingPage } from '../loadingPage/LoadingPage'
 import {
   IShortenedDetails,
-  ShortenService
+  ShortenService,
+  TShortenStatus
 } from '../../shared/services/ShortenService'
 import {
   useMediaQuery,
@@ -15,6 +15,11 @@ import {
   Theme,
   Box
 } from '@mui/material'
+import {
+  AliasConfirmationModal,
+  LinkDetailsControl,
+  LinkDetailsGrid
+} from './components'
 
 type TParams = {
   alias: string
@@ -30,10 +35,22 @@ export interface ILinkDetails extends IShortenedDetails {
   statusModifiedDate: string
 }
 
+interface IConfirmation {
+  open: boolean
+  action: 'delete' | 'disable'
+}
+
 export const LinkDetails = () => {
   const { alias } = useParams<TParams>()
   const [linkDetails, setLinkDetails] = useState<ILinkDetails>()
   const [tooltipOpen, setTooltipOpen] = useState<TToolTips>()
+  const [confirmation, setConfirmation] = useState<IConfirmation>({
+    open: false,
+    action: 'disable'
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const navigate = useNavigate()
 
   const isDownMd = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
@@ -75,6 +92,37 @@ export const LinkDetails = () => {
     []
   )
 
+  const changeStatus = async (newStatus: Omit<TShortenStatus, 'expired'>) => {
+    if (!alias || !linkDetails) return
+
+    const result = await ShortenService.changeStatusByAlias(alias, newStatus)
+
+    if (result instanceof Error) {
+      console.error(result)
+    }
+
+    if (result === 'success') {
+      setLinkDetails({ ...linkDetails, status: newStatus as TShortenStatus })
+    }
+  }
+
+  const deleteLink = async () => {
+    if (!alias || !linkDetails) return
+
+    const result = await ShortenService.deleteByAlias(alias)
+
+    if (result instanceof Error) {
+      console.error(result)
+    }
+
+    if (result === 'success') {
+      navigate('/links')
+    }
+  }
+
+  if (!linkDetails) {
+    return <LoadingPage />
+  }
   return (
     <Box
       component={Paper}
@@ -101,6 +149,7 @@ export const LinkDetails = () => {
         action="Enable"
         tooltipOpen={tooltipOpen}
         openTooltip={openTooltip}
+        onClickInButton={() => changeStatus('available')}
         isDownMd={isDownMd}
         disabled={linkDetails?.status === 'available'}
       />
@@ -122,6 +171,9 @@ export const LinkDetails = () => {
           buttonColor="#FF4A4A"
           tooltipOpen={tooltipOpen}
           openTooltip={openTooltip}
+          onClickInButton={() => {
+            setConfirmation({ open: true, action: 'disable' })
+          }}
           disabled={linkDetails?.status !== 'available'}
           isDownMd={isDownMd}
         />
@@ -140,11 +192,39 @@ export const LinkDetails = () => {
           withBorder={false}
           buttonColor="#FF4A4A"
           tooltipOpen={tooltipOpen}
+          onClickInButton={() => {
+            setConfirmation({ open: true, action: 'delete' })
+          }}
           openTooltip={openTooltip}
           disabled={false}
           isDownMd={isDownMd}
         />
       </Box>
+      {linkDetails && alias && (
+        <AliasConfirmationModal
+          open={confirmation.open}
+          action={confirmation.action}
+          alias={alias}
+          onConfirm={() => {
+            setIsLoading(true)
+            if (confirmation.action === 'disable') {
+              setConfirmation({ open: false, action: 'disable' })
+              changeStatus('disabled')
+            } else {
+              setConfirmation({ open: false, action: 'delete' })
+              deleteLink()
+            }
+            setIsLoading(false)
+          }}
+          onClose={() =>
+            setConfirmation(oldConfirmation => ({
+              ...oldConfirmation,
+              open: false
+            }))
+          }
+          isLoading={isLoading}
+        />
+      )}
     </Box>
   )
 }

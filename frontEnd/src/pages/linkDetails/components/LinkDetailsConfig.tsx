@@ -5,6 +5,7 @@ interface ILinkDetailsConfigProps {
   tooltipOpen?: TToolTips
   isDownMd: boolean
   disabled: boolean
+  onClickInButton: () => void
   withBorder?: boolean
   buttonColor?: string
   openTooltip: (tooltip?: TToolTips) => void
@@ -18,6 +19,7 @@ export const LinkDetailsControl: React.FC<ILinkDetailsConfigProps> = ({
   tooltipOpen,
   isDownMd,
   disabled,
+  onClickInButton,
   withBorder = true,
   buttonColor = '#4caf50',
   openTooltip,
@@ -62,6 +64,7 @@ export const LinkDetailsControl: React.FC<ILinkDetailsConfigProps> = ({
       </Box>
       <Button
         variant="contained"
+        onClick={onClickInButton}
         disabled={disabled}
         sx={theme => ({
           'bgcolor': buttonColor,

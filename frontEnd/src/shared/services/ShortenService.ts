@@ -81,8 +81,46 @@ const getByAlias = async (
   }
 }
 
+const changeStatusByAlias = async (
+  alias: string,
+  newStatus: Omit<TShortenStatus, 'expired'>
+) => {
+  try {
+    const response = await Api.patch(
+      `/api/v1/status/${alias}/${newStatus}`,
+      {},
+      { withCredentials: true }
+    )
+    if (response.status === 204) return 'success'
+
+    return new Error(
+      'An error occurred while trying to change the status to ' +
+        newStatus +
+        'by alias: ' +
+        alias
+    )
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
+const deleteByAlias = async (alias: string) => {
+  try {
+    const response = await Api.delete(`/api/v1/shorten/${alias}/delete`)
+    if (response.status === 204) return 'success'
+
+    return new Error(
+      'An error occurred while trying to delete by alias: ' + alias
+    )
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 export const ShortenService = {
   create,
   getAll,
-  getByAlias
+  getByAlias,
+  changeStatusByAlias,
+  deleteByAlias
 }
