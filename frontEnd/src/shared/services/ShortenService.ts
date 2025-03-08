@@ -1,3 +1,4 @@
+import { AuthService } from './AuthService'
 import { Api } from './axios-config'
 
 type TSortDirection = 'asc' | 'desc'
@@ -36,11 +37,38 @@ export interface IAllShorteneds {
   shorteneds: TSimpleShorten[]
 }
 
+const refreshCount = 0
+
+const refreshAndTryAgain = async (tryAgain: () => void) => {
+  if (refreshCount >= 1) {
+    return new Error('The refresh count has been exceeded')
+  }
+
+  const result = await AuthService.refresh()
+
+  if (result instanceof Error) {
+    return new Error(
+      'An error occurred while trying to refresh the access token'
+    )
+  }
+
+  tryAgain()
+}
+
 const create = async (data: ICreateData) => {
   try {
     const response = await Api.post('/api/v1/shorten', data)
     if (response.status === 201) return 'success'
 
+    if (response.status === 403) {
+      let responseReturn: Promise<Error | 'success'> = Promise.resolve(
+        new Error('Unauthorized')
+      )
+      await refreshAndTryAgain(() => {
+        responseReturn = create(data)
+      })
+      return responseReturn
+    }
     return new Error('An error occurred while trying to create a new Shortened')
   } catch (error) {
     return new Error((error as { message: string }).message)

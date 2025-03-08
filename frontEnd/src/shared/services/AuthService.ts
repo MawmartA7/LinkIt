@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api } from './axios-config'
 
 const login = async (login: string, password: string) => {
   try {
-    const response = await Api.post('/auth/login', { login, password })
+    const response = await Api.post('/auth/login', { login, password }, {
+      _isAuthService: true
+    } as any)
     if (response.status === 200) return 'success'
 
     return new Error('Error while logging in')
@@ -13,7 +16,9 @@ const login = async (login: string, password: string) => {
 
 const register = async (login: string, password: string) => {
   try {
-    const response = await Api.post('/auth/register', { login, password })
+    const response = await Api.post('/auth/register', { login, password }, {
+      _isAuthService: true
+    } as any)
     if (response.status === 201) return 'success'
 
     return new Error('Error while logging in')
@@ -24,7 +29,9 @@ const register = async (login: string, password: string) => {
 
 const logout = async () => {
   try {
-    const response = await Api.post('/auth/logout')
+    const response = await Api.post('/auth/logout', {}, {
+      _isAuthService: true
+    } as any)
     if (response.status === 204) return 'success'
 
     return new Error('Error while logout in')
@@ -35,7 +42,9 @@ const logout = async () => {
 
 const refresh = async () => {
   try {
-    const response = await Api.post('/auth/refresh')
+    const response = await Api.post('/auth/refresh', {}, {
+      _isAuthService: true
+    } as any)
     if (response.status === 200) return 'success'
 
     return new Error('Error while refresh the token')
@@ -49,7 +58,9 @@ const refresh = async () => {
 const confirmEmail = async (id: string, email: string) => {
   try {
     console.log(id)
-    const response = await Api.post('/auth/email', { id, email })
+    const response = await Api.post('/auth/email', { id, email }, {
+      _isAuthService: true
+    } as any)
 
     if (response.status === 204) return 'success'
 
