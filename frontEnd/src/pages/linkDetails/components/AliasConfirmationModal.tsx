@@ -84,7 +84,10 @@ export const AliasConfirmationModal: React.FC<IAliasConfirmationModalProps> = ({
             color={action === 'delete' ? 'error' : 'warning'}
             disabled={isButtonDisabled}
             loading={isLoading}
-            onClick={onConfirm}
+            onClick={() => {
+              onConfirm()
+              handleClose()
+            }}
             sx={theme => ({
               'bgcolor':
                 action === 'delete' ? '#FF4A4A' : theme.palette.warning.light,
