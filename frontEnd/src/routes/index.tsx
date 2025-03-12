@@ -1,16 +1,17 @@
-import {
-  EntryPage,
-  Home,
-  Login,
-  Register,
-  Links,
-  LinkUnavailable,
-  LinkDetails
-} from '../pages'
 import { useAuthContext } from '../shared/contexts/AuthContext'
 import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import {
+  LinkUnavailable,
+  LinkNotFound,
+  LinkDetails,
+  EntryPage,
+  Register,
+  Links,
+  Login,
+  Home
+} from '../pages'
 
 export const Router = () => {
   const { isAuthenticated, firstLoad } = useAuthContext()
@@ -48,7 +49,7 @@ export const Router = () => {
         </>
       ) : (
         <>
-          <Route path="*" element={<EntryPage />} />
+          <Route path="/" element={<EntryPage />} />
           <Route
             path="/login"
             element={
@@ -67,7 +68,9 @@ export const Router = () => {
           />
         </>
       )}
+      <Route path="*" element={<Navigate to="/" />} />
       <Route path="/link-unavailable" element={<LinkUnavailable />} />
+      <Route path="/link-not-found" element={<LinkNotFound />} />
     </Routes>
   )
 }
