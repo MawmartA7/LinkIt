@@ -135,7 +135,13 @@ public class ShortenedService {
     @Transactional
     public String redirect(String id) {
 
-        Shortened shortened = this.shortenedRepository.findById(id).orElseThrow(() -> new ShortenedNotFoundException());
+        var optShortened = this.shortenedRepository.findById(id);
+
+        if (optShortened.isEmpty()) {
+            return FRONTEND_URL + "/link-not-found";
+        }
+
+        Shortened shortened = optShortened.get();
 
         if (shortened.getStatus() != ShortenedStatus.available) {
             return FRONTEND_URL + "/link-unavailable";
