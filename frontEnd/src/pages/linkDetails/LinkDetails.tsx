@@ -102,7 +102,7 @@ export const LinkDetails = () => {
     }
 
     if (result === 'success') {
-      setLinkDetails({ ...linkDetails, status: newStatus as TShortenStatus })
+      getLinkDetails()
     }
   }
 
