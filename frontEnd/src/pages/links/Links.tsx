@@ -11,6 +11,8 @@ type TSortDirection = 'asc' | 'desc'
 
 type TSortableColumns = 'clicks' | 'expiredAt'
 
+export type TExpirationFilter = 'all' | 'expired' | 'active'
+
 interface ILink {
   originalDomain: string
   shortenedUrl: string
@@ -31,6 +33,8 @@ export const Links = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [order, setOrder] = useState<TSortDirection>('desc')
   const [orderBy, setOrderBy] = useState<TSortableColumns>('expiredAt')
+  const [expirationFilter, setExpirationFilter] =
+    useState<TExpirationFilter>('all')
   const { debounce } = useDebounce(500)
 
   const ROWS_PER_PAGE = Number(Environment.ROWS_PER_PAGE)
@@ -55,7 +59,8 @@ export const Links = () => {
       page - 1,
       ROWS_PER_PAGE,
       orderBy,
-      order
+      order,
+      expirationFilter
     )
 
     if (response instanceof Error) {
@@ -77,12 +82,12 @@ export const Links = () => {
 
     setRows(rows)
     setIsLoading(false)
-  }, [ROWS_PER_PAGE, order, orderBy, page, search])
+  }, [ROWS_PER_PAGE, expirationFilter, order, orderBy, page, search])
 
   useEffect(() => {
     setIsLoading(true)
     getRows()
-  }, [ROWS_PER_PAGE, order, orderBy, page])
+  }, [ROWS_PER_PAGE, expirationFilter, order, orderBy, page])
 
   useEffect(() => {
     setIsLoading(true)
@@ -147,10 +152,13 @@ export const Links = () => {
           search={search}
           order={order}
           orderBy={orderBy}
+          expirationFilter={expirationFilter}
+          setExpirationFilter={filter => setExpirationFilter(filter)}
           onRequestSort={handleRequestSort}
           onClearSort={() => {
             setOrder('desc')
             setOrderBy('expiredAt')
+            setExpirationFilter('all')
           }}
           isLoading={isLoading}
           pagination={

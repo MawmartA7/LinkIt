@@ -18,6 +18,7 @@ import {
   Box,
   Tooltip
 } from '@mui/material'
+import { TExpirationFilter } from '../Links'
 
 type TSortDirection = 'asc' | 'desc'
 
@@ -37,6 +38,8 @@ interface ILinksTableProps {
   search: string
   order: TSortDirection
   orderBy: TSortableColumns
+  expirationFilter: TExpirationFilter
+  setExpirationFilter: (filter: TExpirationFilter) => void
   onRequestSort: (property: TSortableColumns) => void
   onClearSort: () => void
   pagination?: React.ReactNode
@@ -48,6 +51,8 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
   search,
   order,
   orderBy,
+  expirationFilter,
+  setExpirationFilter,
   onRequestSort,
   onClearSort,
   pagination,
@@ -79,6 +84,8 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
           <TableHeader
             orderBy={orderBy}
             order={order}
+            expirationFilter={expirationFilter}
+            setExpirationFilter={setExpirationFilter}
             onRequestSort={createSortHandler}
           />
         </TableHead>
@@ -283,7 +290,11 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
                   <>
                     {pagination && pagination}
 
-                    {!(orderBy === 'expiredAt' && order === 'desc') && (
+                    {!(
+                      orderBy === 'expiredAt' &&
+                      order === 'desc' &&
+                      expirationFilter === 'all'
+                    ) && (
                       <IconButton
                         onClick={onClearSort}
                         sx={{ position: 'absolute', right: 0 }}

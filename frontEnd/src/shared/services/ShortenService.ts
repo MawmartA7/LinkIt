@@ -1,3 +1,4 @@
+import { TExpirationFilter } from '../../pages'
 import { AuthService } from './AuthService'
 import { Api } from './axios-config'
 
@@ -80,11 +81,12 @@ const getAll = async (
   page: number,
   size: number,
   orderBy: TSortableColumns,
-  order: TSortDirection
+  order: TSortDirection,
+  expirationFilter: TExpirationFilter
 ): Promise<IAllShorteneds | Error> => {
   try {
     const response = await Api.get(
-      `/api/v1/shortened/all?search=${search}&page=${page}&size=${size}&orderBy=${orderBy}&order=${order.toUpperCase()}`
+      `/api/v1/shortened/all?search=${search}&page=${page}&size=${size}&orderBy=${orderBy}&order=${order.toUpperCase()}&expirationFilter=${expirationFilter}`
     )
     if (response.status === 200) return response.data
 
