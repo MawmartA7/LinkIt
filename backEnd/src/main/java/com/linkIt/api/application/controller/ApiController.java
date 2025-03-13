@@ -17,6 +17,7 @@ import com.linkIt.api.domain.dtos.shortened.AllShortenedsResponseDTO;
 import com.linkIt.api.domain.dtos.shortened.CreateShortenedRequestDTO;
 import com.linkIt.api.domain.dtos.shortened.DetailsResponseDTO;
 import com.linkIt.api.domain.dtos.shortened.ShortenedSortDTO;
+import com.linkIt.api.domain.models.enums.ExpirationFilter;
 import com.linkIt.api.domain.models.enums.ShortenedSortable;
 import com.linkIt.api.domain.models.enums.ShortenedStatus;
 import com.linkIt.api.infra.security.TokenService;
@@ -94,15 +95,17 @@ public class ApiController {
 
     @GetMapping("/shortened/all")
     public ResponseEntity<AllShortenedsResponseDTO> getAllBySearch(
-            @RequestParam(name = "search", defaultValue = "") String search, @RequestParam(name = "page") int page,
-            @RequestParam(name = "size", defaultValue = "5") int size,
-            @RequestParam(name = "orderBy", defaultValue = "expiredAt") ShortenedSortable orderBy,
-            @RequestParam(name = "order", defaultValue = "DESC") Direction sortDirection, HttpServletRequest request) {
+            @RequestParam(defaultValue = "") String search, @RequestParam int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "expiredAt") ShortenedSortable orderBy,
+            @RequestParam(name = "order", defaultValue = "DESC") Direction sortDirection,
+            @RequestParam(defaultValue = "all") ExpirationFilter expirationFilter,
+            HttpServletRequest request) {
 
         String login = tokenService.getUserLoginByAccessToken(request);
 
         AllShortenedsResponseDTO shorteneds = this.shortenedService.getAllByUserAndSearch(search, page, size,
-                new ShortenedSortDTO(orderBy, sortDirection), login);
+                new ShortenedSortDTO(orderBy, sortDirection), expirationFilter, login);
         return ResponseEntity.ok(shorteneds);
     }
 

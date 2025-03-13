@@ -5,12 +5,14 @@ import java.time.ZoneOffset;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.linkIt.api.domain.models.Shortened;
+import com.linkIt.api.domain.models.enums.ExpirationFilter;
 import com.linkIt.api.domain.models.enums.ShortenedStatus;
 import com.linkIt.api.domain.dtos.shortened.AllShortenedsResponseDTO;
 import com.linkIt.api.domain.dtos.shortened.CreateShortenedRequestDTO;
@@ -108,20 +110,13 @@ public class ShortenedService {
     }
 
     public AllShortenedsResponseDTO getAllByUserAndSearch(String search, int page, int size, ShortenedSortDTO sort,
+            ExpirationFilter expirationFilter,
             String login) {
 
         var pageable = PageRequest.of(page, size, sort.direction(), sort.orderBy().getFieldName(), "createdAt",
                 "statusModifiedAt");
 
-        if (search.isBlank()) {
-            var shorteneds = this.shortenedRepository.findAllByOwner(login, pageable);
-
-            return new AllShortenedsResponseDTO(shorteneds);
-        } else {
-            var shorteneds = this.shortenedRepository.findAllByOwnerAndAliasContaining(login, search, pageable);
-
-            return new AllShortenedsResponseDTO(shorteneds);
-        }
+        return new AllShortenedsResponseDTO(getAllByFilters(search, expirationFilter, login, pageable));
     }
 
     public AllShortenedsResponseDTO getAll(int page, int size) {
@@ -164,6 +159,42 @@ public class ShortenedService {
         }
 
         return id;
+    }
+
+    private Page<Shortened> getAllByFilters(String search,
+            ExpirationFilter expirationFilter,
+            String login, PageRequest pageable) {
+
+        if (search.isBlank()) {
+
+            if (expirationFilter.equals(ExpirationFilter.all))
+
+                return this.shortenedRepository.findAllByOwner(login, pageable);
+
+            else if (expirationFilter.equals(ExpirationFilter.active))
+
+                return this.shortenedRepository.findAllByOwnerAndStatusNot(login,
+                        ShortenedStatus.expired, pageable);
+            else
+
+                return this.shortenedRepository.findAllByOwnerAndStatus(login,
+                        ShortenedStatus.expired, pageable);
+
+        } else {
+            if (expirationFilter.equals(ExpirationFilter.all))
+
+                return this.shortenedRepository.findAllByOwnerAndAliasContaining(login, search, pageable);
+
+            else if (expirationFilter.equals(ExpirationFilter.active))
+
+                return this.shortenedRepository.findAllByOwnerAndAliasContainingAndStatusNot(search, login,
+                        ShortenedStatus.expired, pageable);
+            else
+
+                return this.shortenedRepository.findAllByOwnerAndAliasContainingAndStatus(search, login,
+                        ShortenedStatus.expired, pageable);
+
+        }
     }
 
 }
