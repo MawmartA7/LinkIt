@@ -59,7 +59,7 @@ export const LinksList: React.FC<LinksListProps> = ({
         bgcolor: 'background.paper',
         borderTop: '1px solid ' + theme.palette.background.default,
         overflow: 'auto',
-        [theme.breakpoints.down(400)]: {
+        [theme.breakpoints.down('md')]: {
           height: 'calc(100dvh - 90px - 104px)',
           top: 90 + 104
         }

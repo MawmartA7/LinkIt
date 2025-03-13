@@ -14,10 +14,10 @@ export const SearchBar = ({ search, onSearchChange }: Props) => {
       gap={1}
       sx={theme => ({
         width: 300,
-        [theme.breakpoints.down('sm')]: {
-          width: 275
+        [theme.breakpoints.down('md')]: {
+          width: 400
         },
-        [theme.breakpoints.down(400)]: {
+        [theme.breakpoints.down(500)]: {
           width: '100%',
           px: 1
         }

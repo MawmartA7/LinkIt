@@ -1,15 +1,14 @@
 import { useState } from 'react'
+import { Menu } from '../../../shared/components'
+import { TExpirationFilter } from '../Links'
 import {
   TableSortLabel,
+  IconButton,
   Typography,
   TableCell,
   TableRow,
-  IconButton,
-  Icon,
-  Menu,
-  MenuItem
+  Icon
 } from '@mui/material'
-import { TExpirationFilter } from '../Links'
 
 type TSortDirection = 'asc' | 'desc'
 type TSortableColumns = 'clicks' | 'expiredAt'
@@ -30,20 +29,8 @@ export const TableHeader = ({
   onRequestSort
 }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
   const createSortHandler = (property: TSortableColumns) => {
     onRequestSort(property)
-  }
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleChooseFilter = (filter: TExpirationFilter) => {
-    setExpirationFilter(filter)
-    handleClose()
   }
 
   return (
@@ -88,7 +75,7 @@ export const TableHeader = ({
           'display': 'flex',
           'justifyContent': 'space-between',
           '&:hover button': {
-            opacity: !open && expirationFilter === 'all' ? 0.5 : 1
+            opacity: !anchorEl && expirationFilter === 'all' ? 0.5 : 1
           }
         })}
       >
@@ -107,9 +94,9 @@ export const TableHeader = ({
           </Typography>
         </TableSortLabel>
         <IconButton
-          onClick={handleClick}
+          onClick={e => setAnchorEl(e.currentTarget)}
           sx={{
-            opacity: !open && expirationFilter === 'all' ? 0 : 1,
+            opacity: !anchorEl && expirationFilter === 'all' ? 0 : 1,
             transition: 'opacity 200ms ease-in-out'
           }}
           size="small"
@@ -118,32 +105,13 @@ export const TableHeader = ({
         </IconButton>
         <Menu
           anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left'
+          setAnchorEl={value => setAnchorEl(value)}
+          currentOption={expirationFilter}
+          options={['all', 'active', 'expired']}
+          onSelectOption={(option: TExpirationFilter) => {
+            setExpirationFilter(option)
           }}
-          open={open}
-          onClose={handleClose}
-        >
-          <MenuItem
-            onClick={() => handleChooseFilter('all')}
-            selected={expirationFilter === 'all'}
-          >
-            All
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleChooseFilter('active')}
-            selected={expirationFilter === 'active'}
-          >
-            Actives
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleChooseFilter('expired')}
-            selected={expirationFilter === 'expired'}
-          >
-            Expirateds
-          </MenuItem>
-        </Menu>
+        />
       </TableCell>
       <TableCell
         sx={theme => ({

@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { LinksList, LinksPagination, LinksTable, SearchBar } from './components'
-import { Button, Paper, Icon, useMediaQuery, Theme } from '@mui/material'
 import { ShortenService } from '../../shared/services/ShortenService'
 import { formatTimeRemaining } from '../../shared/utils/formatTime'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Environment } from '../../shared/environment'
 import { useDebounce } from '../../shared/hooks'
+import {
+  useMediaQuery,
+  IconButton,
+  Button,
+  Theme,
+  Paper,
+  Icon,
+  Box
+} from '@mui/material'
+import { Menu } from '../../shared/components'
 
 type TSortDirection = 'asc' | 'desc'
 
@@ -33,6 +42,7 @@ export const Links = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [order, setOrder] = useState<TSortDirection>('desc')
   const [orderBy, setOrderBy] = useState<TSortableColumns>('expiredAt')
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [expirationFilter, setExpirationFilter] =
     useState<TExpirationFilter>('all')
   const { debounce } = useDebounce(500)
@@ -114,37 +124,67 @@ export const Links = () => {
           [theme.breakpoints.down('md')]: {
             borderRadius: 0,
             width: '100%',
-            top: 90
-          },
-          [theme.breakpoints.down(400)]: {
-            borderRadius: 0,
-            width: '100%',
             top: 90,
             flexDirection: 'column',
             alignItems: 'center'
           }
         })}
       >
-        <Button
-          onClick={() => navigate('/')}
+        <Box
           sx={theme => ({
-            textTransform: 'none',
-            gap: 1,
-            [theme.breakpoints.down('sm')]: {}
+            display: 'flex',
+            gap: 2,
+            [theme.breakpoints.down('md')]: {
+              px: 2,
+              width: '100%',
+              justifyContent: 'space-between'
+            }
           })}
         >
-          <Icon fontSize="large">add</Icon>
-          Add
-        </Button>
-        <SearchBar
-          search={search}
-          onSearchChange={value =>
-            setSearchParams(
-              { search: value, page: `${page}` },
-              { replace: true }
-            )
-          }
-        />
+          <Button
+            onClick={() => navigate('/')}
+            sx={theme => ({
+              textTransform: 'none',
+              gap: 1,
+              [theme.breakpoints.down('sm')]: {}
+            })}
+          >
+            <Icon fontSize="large">add</Icon>
+            Add
+          </Button>
+          {useMediaQuery((theme: Theme) => theme.breakpoints.down('md')) && (
+            <>
+              <IconButton
+                onClick={e => {
+                  setAnchorEl(e.currentTarget)
+                }}
+              >
+                <Icon sx={{ color: '#bbb' }}>filter_list</Icon>
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                setAnchorEl={value => setAnchorEl(value)}
+                currentOption={expirationFilter}
+                options={['all', 'active', 'expired']}
+                onSelectOption={(option: TExpirationFilter) => {
+                  setExpirationFilter(option)
+                }}
+              />
+            </>
+          )}
+        </Box>
+        <Box display="flex" width="100%" justifyContent="flex-end">
+          <SearchBar
+            search={search}
+            onSearchChange={value =>
+              setSearchParams(
+                { search: value, page: `${page}` },
+                { replace: true }
+              )
+            }
+          />
+        </Box>
       </Paper>
       {useMediaQuery((theme: Theme) => theme.breakpoints.up('md')) ? (
         <LinksTable
@@ -183,6 +223,7 @@ export const Links = () => {
             <LinksPagination
               page={page}
               totalCount={totalCount}
+              showFirstAndLastButton={false}
               onChange={newPage =>
                 setSearchParams(
                   { search, page: newPage.toString() },
