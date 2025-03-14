@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { EmailConfirmation } from './emailConfirmation/EmailConfirmation'
 import { TextLink } from '../../shared/components/textLink/TextLink'
-import { authValidationSchema } from '../../shared/forms/schemas'
+import { authSchemas } from '../../shared/forms/schemas'
 import { AuthService } from '../../shared/services/AuthService'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
@@ -51,7 +51,7 @@ export const Register = () => {
   const handleRegister = async (data: IRegisterData) => {
     setIsLoading(true)
     try {
-      const validatedData = await authValidationSchema.validate(
+      const validatedData = await authSchemas.authValidationSchema.validate(
         { email: data.email, password: data.password },
         {
           abortEarly: false

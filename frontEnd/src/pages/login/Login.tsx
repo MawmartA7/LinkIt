@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TextLink } from '../../shared/components/textLink/TextLink'
-import { authValidationSchema } from '../../shared/forms/schemas'
+import { authSchemas } from '../../shared/forms/schemas'
 import { useAuthContext } from '../../shared/contexts'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
@@ -35,9 +35,12 @@ export const Login = () => {
 
   const handleLogin = async (data: ILoginData) => {
     try {
-      const validatedData = await authValidationSchema.validate(data, {
-        abortEarly: false
-      })
+      const validatedData = await authSchemas.authValidationSchema.validate(
+        data,
+        {
+          abortEarly: false
+        }
+      )
 
       const response = await login(validatedData.email, validatedData.password)
 
@@ -152,7 +155,9 @@ export const Login = () => {
         </Typography>
         <Typography variant="body1" color="primary" textAlign="center">
           Forgot your password?{' '}
-          <TextLink href="/password-recovery">Password Recovery</TextLink>
+          <TextLink href="/password-recovery/send-email">
+            Password Recovery
+          </TextLink>
         </Typography>
       </Box>
       <Snackbar

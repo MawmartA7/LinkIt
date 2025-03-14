@@ -55,9 +55,24 @@ const refresh = async () => {
   }
 }
 
+const sendPasswordRecoveryEmail = async (email: string) => {
+  try {
+    const response = await Api.post('/auth/email/forgot-password', { email }, {
+      _isAuthService: true
+    } as any)
+
+    if (response.status === 204) return 'success'
+
+    return new Error(
+      'Error while send the password recovery email confirmation'
+    )
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 const confirmEmail = async (id: string, email: string) => {
   try {
-    console.log(id)
     const response = await Api.post('/auth/email', { id, email }, {
       _isAuthService: true
     } as any)
@@ -75,5 +90,6 @@ export const AuthService = {
   register,
   logout,
   refresh,
+  sendPasswordRecoveryEmail,
   confirmEmail
 }

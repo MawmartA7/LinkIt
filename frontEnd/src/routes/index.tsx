@@ -10,7 +10,8 @@ import {
   Register,
   Links,
   Login,
-  Home
+  Home,
+  SendEmailPage
 } from '../pages'
 
 export const Router = () => {
@@ -63,6 +64,14 @@ export const Router = () => {
             element={
               <AuthLayout>
                 <Register />
+              </AuthLayout>
+            }
+          />
+          <Route
+            path="/password-recovery/send-Email"
+            element={
+              <AuthLayout>
+                <SendEmailPage />
               </AuthLayout>
             }
           />

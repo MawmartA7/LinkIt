@@ -12,12 +12,20 @@ interface ICreateData {
   id?: string
 }
 
-export const authValidationSchema: yup.ObjectSchema<IAuthData> = yup
-  .object()
-  .shape({
-    email: yup.string().email().required(),
-    password: yup.string().min(5).required()
-  })
+const emailIsValid: yup.StringSchema = yup
+  .string()
+  .email('Invalid email')
+  .max(254, 'The email must have a max of 20 chars')
+
+const authValidationSchema: yup.ObjectSchema<IAuthData> = yup.object().shape({
+  email: emailIsValid.required(),
+  password: yup.string().min(5).required()
+})
+
+export const authSchemas = {
+  authValidationSchema,
+  emailIsValid
+}
 
 const urlIsValid: yup.StringSchema = yup
   .string()
