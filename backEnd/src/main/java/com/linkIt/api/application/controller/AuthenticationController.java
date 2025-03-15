@@ -84,10 +84,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/recovery-password/verify")
-    public ResponseEntity<String> veryPassword(@RequestBody RecoveryCodeDTO recoveryCodeDTO) {
-        String recoveryLink = this.authenticationService.verifyRecoveryCode(recoveryCodeDTO.code());
+    public ResponseEntity<TokenDTO> veryPassword(@RequestBody RecoveryCodeDTO recoveryCodeDTO) {
+        TokenDTO token = this.authenticationService.verifyRecoveryCode(recoveryCodeDTO.code());
 
-        return ResponseEntity.ok(recoveryLink);
+        return ResponseEntity.ok(token);
     }
 
     @PatchMapping("/recovery-password/recovery")

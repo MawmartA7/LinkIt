@@ -136,7 +136,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String verifyRecoveryCode(String code) {
+    public TokenDTO verifyRecoveryCode(String code) {
         EmailConfirmation emailConfirmation = this.emailConfirmationRepository.findById(code)
                 .orElseThrow(() -> new RecoveryPasswordException("The code is incorrect"));
 
@@ -144,7 +144,7 @@ public class AuthenticationService {
 
         this.emailConfirmationRepository.delete(emailConfirmation);
 
-        return token;
+        return new TokenDTO(token);
     }
 
     @Transactional
