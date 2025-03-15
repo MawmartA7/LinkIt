@@ -106,6 +106,24 @@ const confirmRecoveryCode = async (code: string) => {
   }
 }
 
+const PasswordRecovery = async (token: string, password: string) => {
+  try {
+    const response = await Api.patch<IToken>(
+      '/auth/recovery-password/recovery',
+      { token, password },
+      {
+        _isAuthService: true
+      } as any
+    )
+
+    if (response.status === 204) return 'success'
+
+    return new Error('Error while reset the password')
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
+
 export const AuthService = {
   login,
   register,
@@ -113,5 +131,6 @@ export const AuthService = {
   refresh,
   confirmEmail,
   sendPasswordRecoveryEmail,
-  confirmRecoveryCode
+  confirmRecoveryCode,
+  PasswordRecovery
 }

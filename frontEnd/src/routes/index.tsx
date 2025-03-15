@@ -11,7 +11,8 @@ import {
   Links,
   Login,
   Home,
-  SendEmailPage
+  SendEmailPage,
+  PasswordRecovery
 } from '../pages'
 
 export const Router = () => {
@@ -72,6 +73,14 @@ export const Router = () => {
             element={
               <AuthLayout>
                 <SendEmailPage />
+              </AuthLayout>
+            }
+          />
+          <Route
+            path="/password-recovery"
+            element={
+              <AuthLayout>
+                <PasswordRecovery />
               </AuthLayout>
             }
           />
