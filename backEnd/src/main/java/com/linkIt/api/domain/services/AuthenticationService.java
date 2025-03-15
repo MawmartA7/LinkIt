@@ -150,7 +150,9 @@ public class AuthenticationService {
     @Transactional
     public void recoveryPassword(RecoveryPasswordDTO recoveryPasswordDTO) {
 
-        String email = this.tokenService.validateAccessToken(recoveryPasswordDTO.token());
+        String email = this.tokenService.validateGenericToken(recoveryPasswordDTO.token());
+
+        System.out.println("deb - " + email);
 
         User user = (User) this.repository.findByLogin(email);
 
