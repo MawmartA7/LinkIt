@@ -31,12 +31,17 @@ export const PasswordRecovery = () => {
   const navigate = useNavigate()
   const { formRef, save } = useVForm()
 
-  if (!token) return navigate('/')
+  if (!token) navigate('/')
 
   const handlePasswordRecovery = async (data: IPasswordRecovery) => {
     setIsLoading(true)
 
     try {
+      if (!token) {
+        setErrorMessage('Token not found')
+        return
+      }
+
       if (!data.newPassword) {
         setErrorMessage('These fields are required.')
         formRef.current?.setErrors({
