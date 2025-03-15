@@ -1,8 +1,12 @@
 import { useState } from 'react'
-import { TextFieldCustumOutlined, TextLink } from '../../../shared/components'
 import { AuthService } from '../../../shared/services/AuthService'
 import { authSchemas } from '../../../shared/forms/schemas'
 import { useNavigate } from 'react-router-dom'
+import {
+  TextFieldCustumOutlined,
+  EmailConfirmation,
+  TextLink
+} from '../../../shared/components'
 import * as yup from 'yup'
 import {
   SnackbarCloseReason,
@@ -19,6 +23,8 @@ export const SendEmailPage = () => {
   const [email, setEmail] = useState('')
   const [errorMessage, setErrorMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
+  const [isInEmailConfirmation, setIsInEmailConfirmation] = useState(false)
+  const [codeErrorMessage, setCodeErrorMessage] = useState<string>()
 
   const navigate = useNavigate()
 
@@ -32,6 +38,7 @@ export const SendEmailPage = () => {
       const result = await AuthService.sendPasswordRecoveryEmail(validatedEmail)
 
       if (result === 'success') {
+        setIsInEmailConfirmation(true)
       }
       setErrorMessage('Invalid email')
     } catch (error) {
@@ -46,6 +53,22 @@ export const SendEmailPage = () => {
     }
   }
 
+  const handleConfirmCode = async (code: number) => {
+    try {
+      const token = await AuthService.confirmRecoveryCode(`${code}`)
+
+      if (token instanceof Error) {
+        setCodeErrorMessage('Invalid code')
+        return
+      }
+
+      navigate('/password-recovery?token=' + token)
+    } catch (error) {
+      setCodeErrorMessage('Invalid code')
+      console.error(error)
+    }
+  }
+
   const handleCloseSnackBar = (reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
@@ -54,7 +77,7 @@ export const SendEmailPage = () => {
     setErrorMessage(undefined)
   }
 
-  return (
+  return !isInEmailConfirmation ? (
     <Box>
       <Box
         sx={theme => ({
@@ -140,5 +163,14 @@ export const SendEmailPage = () => {
         </Alert>
       </Snackbar>
     </Box>
+  ) : (
+    <EmailConfirmation
+      email={email}
+      goBack={() => setIsInEmailConfirmation(false)}
+      handleConfirmCode={handleConfirmCode}
+      reSendCode={handleSendEmail}
+      errorMessage={codeErrorMessage}
+      clearError={() => setCodeErrorMessage(undefined)}
+    />
   )
 }

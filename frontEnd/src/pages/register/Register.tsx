@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { EmailConfirmation } from './emailConfirmation/EmailConfirmation'
+import { EmailConfirmation } from '../../shared/components/emailConfirmation/EmailConfirmation'
 import { TextLink } from '../../shared/components/textLink/TextLink'
-import { authSchemas } from '../../shared/forms/schemas'
 import { AuthService } from '../../shared/services/AuthService'
+import { authSchemas } from '../../shared/forms/schemas'
+import { useAuthContext } from '../../shared/contexts'
 import { VTextField } from '../../shared/components'
 import { useVForm, VForm } from '../../shared/forms'
 import * as yup from 'yup'
@@ -17,6 +18,7 @@ import {
   Icon,
   Box
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 interface IRegisterData {
   email: string
@@ -34,9 +36,13 @@ export const Register = () => {
   const [errorMessage, setErrorMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [isInEmailConfirmation, setIsInEmailConfirmation] = useState(false)
+  const [codeErrorMessage, setCodeErrorMessage] = useState<string>()
   const [userData, setUserData] = useState<IUserData>()
 
+  const navigate = useNavigate()
+
   const { formRef, isReady, save } = useVForm()
+  const { login } = useAuthContext()
 
   useEffect(() => {
     if (!isInEmailConfirmation && isReady) {
@@ -117,6 +123,29 @@ export const Register = () => {
     }
   }
 
+  const handleConfirmCode = async (code: number) => {
+    if (!userData?.email || !userData?.password) {
+      setErrorMessage('User data not found')
+      return
+    }
+
+    try {
+      const response = await AuthService.confirmEmail(`${code}`, userData.email)
+
+      if (response === 'success') {
+        const responseLogin = await login(userData.email, userData.password)
+
+        if (responseLogin === 'success') {
+          navigate('/')
+        }
+      }
+      setErrorMessage('Invalid code')
+    } catch (error) {
+      setErrorMessage('Invalid code')
+      console.error(error)
+    }
+  }
+
   const handleCloseSnackBar = (reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
@@ -127,7 +156,7 @@ export const Register = () => {
 
   return (
     <>
-      {!isInEmailConfirmation ? (
+      {!isInEmailConfirmation || !userData ? (
         <VForm
           ref={formRef}
           onSubmit={(data: IRegisterData) => {
@@ -248,16 +277,18 @@ export const Register = () => {
         </VForm>
       ) : (
         <EmailConfirmation
-          userData={userData}
-          backToRegister={() => setIsInEmailConfirmation(false)}
+          email={userData.email}
+          goBack={() => setIsInEmailConfirmation(false)}
+          handleConfirmCode={handleConfirmCode}
           reSendCode={() => {
-            if (userData)
-              handleRegister({
-                email: userData.email,
-                password: userData.password,
-                confirmPassword: userData?.password
-              })
+            handleRegister({
+              email: userData.email,
+              password: userData.password,
+              confirmPassword: userData?.password
+            })
           }}
+          errorMessage={codeErrorMessage}
+          clearError={() => setCodeErrorMessage(undefined)}
         />
       )}
     </>

@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Api } from './axios-config'
 
+interface IToken {
+  token: string
+}
+
 const login = async (login: string, password: string) => {
   try {
     const response = await Api.post('/auth/login', { login, password }, {
@@ -55,6 +59,19 @@ const refresh = async () => {
   }
 }
 
+const confirmEmail = async (id: string, email: string) => {
+  try {
+    const response = await Api.post('/auth/email', { id, email }, {
+      _isAuthService: true
+    } as any)
+
+    if (response.status === 204) return 'success'
+
+    return new Error('Error while confirming email')
+  } catch (error) {
+    return new Error((error as { message: string }).message)
+  }
+}
 const sendPasswordRecoveryEmail = async (email: string) => {
   try {
     const response = await Api.post('/auth/email/forgot-password', { email }, {
@@ -71,13 +88,17 @@ const sendPasswordRecoveryEmail = async (email: string) => {
   }
 }
 
-const confirmEmail = async (id: string, email: string) => {
+const confirmRecoveryCode = async (code: string) => {
   try {
-    const response = await Api.post('/auth/email', { id, email }, {
-      _isAuthService: true
-    } as any)
+    const response = await Api.post<IToken>(
+      '/auth/recovery-password/verify',
+      { code },
+      {
+        _isAuthService: true
+      } as any
+    )
 
-    if (response.status === 204) return 'success'
+    if (response.status === 200) return response.data.token
 
     return new Error('Error while confirming email')
   } catch (error) {
@@ -90,6 +111,7 @@ export const AuthService = {
   register,
   logout,
   refresh,
+  confirmEmail,
   sendPasswordRecoveryEmail,
-  confirmEmail
+  confirmRecoveryCode
 }

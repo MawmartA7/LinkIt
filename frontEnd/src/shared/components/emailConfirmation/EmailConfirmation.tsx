@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
-import { AuthService } from '../../../shared/services/AuthService'
-import { useAuthContext } from '../../../shared/contexts'
-import { useVForm, VForm } from '../../../shared/forms'
-import { VTextField } from '../../../shared/components'
-import { useNavigate } from 'react-router-dom'
+import { useVForm, VForm } from '../../forms'
+import { VTextField } from '..'
 import {
   SnackbarCloseReason,
   CircularProgress,
@@ -16,36 +13,31 @@ import {
   Box
 } from '@mui/material'
 
-interface IUserData {
-  email: string
-  password: string
-}
-
 interface IEmailConfirmationProps {
-  userData: IUserData | undefined
-  backToRegister: () => void
+  email?: string
+  handleConfirmCode: (code: number) => void
+  goBack: () => void
   reSendCode: () => void
+  errorMessage: string | undefined
+  clearError: () => void
 }
 
 export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
-  userData,
-  backToRegister,
-  reSendCode
+  email,
+  handleConfirmCode,
+  goBack,
+  reSendCode,
+  errorMessage,
+  clearError
 }) => {
-  const [errorMessage, setErrorMessage] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
   const [timeLeft, setTimeLeft] = useState(60)
 
   const { formRef, save } = useVForm()
 
-  const { login } = useAuthContext()
-
-  const navigate = useNavigate()
-
   useEffect(() => {
     if (timeLeft === 0) return
 
-    console.log(timeLeft)
     const intervalId = setInterval(() => {
       setTimeLeft(prevTime => prevTime - 1)
     }, 1000)
@@ -53,48 +45,21 @@ export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
     return () => clearInterval(intervalId)
   }, [timeLeft])
 
-  const handleVerifyCode = async (code: number) => {
-    setIsLoading(true)
-
-    if (!userData?.email || !userData?.password) {
-      setErrorMessage('E-mail not found')
-      setIsLoading(false)
-      return
-    }
-
-    try {
-      const response = await AuthService.confirmEmail(`${code}`, userData.email)
-
-      console.log(response)
-      if (response === 'success') {
-        const responseLogin = await login(userData.email, userData.password)
-
-        if (responseLogin === 'success') {
-          navigate('/')
-        }
-      }
-      setErrorMessage('Invalid code')
-    } catch (error) {
-      setErrorMessage('Invalid code')
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleCloseSnackBar = (reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
     }
 
-    setErrorMessage(undefined)
+    clearError()
   }
 
   return (
     <VForm
       ref={formRef}
       onSubmit={(data: { code: number }) => {
-        handleVerifyCode(data.code)
+        setIsLoading(true)
+        handleConfirmCode(data.code)
+        setIsLoading(false)
       }}
       placeholder={undefined}
       onPointerEnterCapture={() => {}}
@@ -114,7 +79,7 @@ export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
         })}
       >
         <Box width="100%" display="flex" justifyContent="flex-start" mt={-3}>
-          <IconButton onClick={backToRegister}>
+          <IconButton onClick={goBack}>
             <Icon
               fontSize="medium"
               sx={theme => ({ color: theme.palette.primary.main })}
@@ -124,7 +89,7 @@ export const EmailConfirmation: React.FC<IEmailConfirmationProps> = ({
           </IconButton>
         </Box>
         <Typography mb={2} textAlign="center">
-          You have received an e-mail at <strong>{userData?.email} </strong>
+          You have received an e-mail at <strong>{email} </strong>
           with a code. Enter the same code below:
         </Typography>
         <Box
