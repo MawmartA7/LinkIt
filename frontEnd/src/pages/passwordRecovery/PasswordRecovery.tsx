@@ -133,7 +133,6 @@ export const PasswordRecovery = () => {
               <Icon
                 sx={theme => ({
                   'color': '#c5cad3',
-                  'mt': -1,
                   '&:hover': { color: theme.palette.secondary.main }
                 })}
               >
@@ -154,7 +153,6 @@ export const PasswordRecovery = () => {
               <Icon
                 sx={theme => ({
                   'color': '#c5cad3',
-                  'mt': -1,
                   '&:hover': { color: theme.palette.secondary.main }
                 })}
               >

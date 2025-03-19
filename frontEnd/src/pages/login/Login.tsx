@@ -125,7 +125,6 @@ export const Login = () => {
                   'color': isCheckingAuth
                     ? theme.palette.action.disabled
                     : '#c5cad3',
-                  'mt': -1,
                   '&:hover': { color: theme.palette.secondary.main }
                 })}
               >

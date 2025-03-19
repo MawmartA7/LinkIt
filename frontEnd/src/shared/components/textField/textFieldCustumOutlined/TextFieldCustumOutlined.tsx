@@ -53,12 +53,13 @@ export const TextFieldCustumOutlined: React.FC<
         onChange?.(e)
       }}
       fullWidth
+      size="small"
       sx={{
         'borderRadius': 2,
-        'height': 40,
+        'minHeight': 40,
         '.MuiOutlinedInput-root': {
           'fieldset': {
-            height: 45,
+            minHeight: 45,
             border:
               '1px solid ' + (error ? theme.palette.error.light : '#797979'),
             borderRadius: 2
@@ -75,6 +76,9 @@ export const TextFieldCustumOutlined: React.FC<
           },
           '&.Mui-disabled': {
             '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.777)' }
+          },
+          '& .MuiSelect-icon': {
+            color: '#bbb'
           }
         }
       }}

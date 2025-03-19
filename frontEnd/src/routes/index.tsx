@@ -3,16 +3,17 @@ import { LoadingPage } from '../pages/loadingPage/LoadingPage'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import {
+  PasswordRecovery,
   LinkUnavailable,
+  SendEmailPage,
   LinkNotFound,
   LinkDetails,
   EntryPage,
   Register,
+  Contact,
   Links,
   Login,
-  Home,
-  SendEmailPage,
-  PasswordRecovery
+  Home
 } from '../pages'
 
 export const Router = () => {
@@ -45,6 +46,14 @@ export const Router = () => {
             element={
               <LogedLayout>
                 <LinkDetails />
+              </LogedLayout>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <LogedLayout>
+                <Contact />
               </LogedLayout>
             }
           />

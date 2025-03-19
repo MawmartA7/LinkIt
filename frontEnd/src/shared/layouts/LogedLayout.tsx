@@ -24,8 +24,8 @@ export const LogedLayout: React.FC<ILogedLayoutProps> = ({ children }) => {
       <Box
         component="main"
         sx={{
-          pt: 11.25,
-          height: '100vh',
+          minHeight: 'calc(100vh - 135px)',
+          pb: 12.25,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

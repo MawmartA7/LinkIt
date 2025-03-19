@@ -45,9 +45,11 @@ export const Header: React.FC<IHeaderProps> = ({ navItems, logo }) => {
       <AppBar
         component="header"
         sx={theme => ({
+          position: 'relative',
           paddingRight: { sm: 1, md: 5 },
           paddingLeft: { sm: 1, md: 5 },
-          backgroundColor: theme.palette.background.paper
+          backgroundColor: theme.palette.background.paper,
+          mb: 4
         })}
       >
         <Toolbar component="nav">

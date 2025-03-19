@@ -36,7 +36,6 @@ export const SearchBar = ({ search, onSearchChange }: Props) => {
             sx={theme => ({
               'color': '#bbbbbb',
               'position': 'relative',
-              'bottom': 3,
               'right': 5,
               '&:hover': { color: theme.palette.secondary.main }
             })}
