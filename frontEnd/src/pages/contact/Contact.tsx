@@ -1,11 +1,15 @@
+import { useState } from 'react'
 import { TSubjectValueOptions } from '../../shared/services/ContactService'
 import { ContactInfoList, ContactSendEmail } from './components'
 import { GitHub, LinkedIn, WhatsApp } from '@mui/icons-material'
 import {
+  SnackbarCloseReason,
   useMediaQuery,
   IconButton,
   Typography,
+  Snackbar,
   Theme,
+  Alert,
   Paper,
   Box
 } from '@mui/material'
@@ -43,7 +47,17 @@ const subjectOptions: ISubjectOption[] = [
 ]
 
 export const Contact = () => {
+  const [errorMessage, setErrorMessage] = useState<string>()
+
   const isUpMd = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  const handleCloseSnackBar = (reason?: SnackbarCloseReason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+
+    setErrorMessage(undefined)
+  }
 
   return (
     <Box
@@ -217,9 +231,30 @@ export const Contact = () => {
             If you have any questions, suggestions or problems, please fill in
             the form below. We'll get back to you as soon as possible!
           </Typography>
-          <ContactSendEmail subjectOptions={subjectOptions} />
+          <ContactSendEmail
+            subjectOptions={subjectOptions}
+            setErrorMessage={message => setErrorMessage(message)}
+          />
         </Box>
       </Box>
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={10000}
+        onClose={(_, reason) => handleCloseSnackBar(reason)}
+        sx={{
+          position: 'fixed',
+          width: 260
+        }}
+      >
+        <Alert
+          onClose={() => handleCloseSnackBar()}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

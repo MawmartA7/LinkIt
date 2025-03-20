@@ -14,7 +14,12 @@ Api.interceptors.response.use(
       _isAuthService?: boolean
       _retry?: boolean
     }
-    if (error.response?.status === 403 && !originalRequest._isAuthService) {
+    if (
+      error.response?.status === 403 &&
+      (error.response.data as { message: string }).message ===
+        'Access Denied' &&
+      !originalRequest._isAuthService
+    ) {
       if (!originalRequest._retry) {
         originalRequest._retry = true
 

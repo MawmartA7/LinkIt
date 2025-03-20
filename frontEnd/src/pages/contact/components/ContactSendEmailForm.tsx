@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react'
-import { IMailData } from '../../../shared/services/ContactService'
+import { UseRecaptcha } from '../../../shared/hooks/UseRecaptcha'
 import { Box, Button, MenuItem, Typography } from '@mui/material'
 import { VTextField } from '../../../shared/components'
 import { useVForm, VForm } from '../../../shared/forms'
+import {
+  ContactService,
+  IMailData
+} from '../../../shared/services/ContactService'
 import { ISubjectOption } from '../Contact'
 
 interface ContactSendEmailProps {
   subjectOptions: ISubjectOption[]
+  setErrorMessage: (message: string) => void
 }
 
 export const ContactSendEmail: React.FC<ContactSendEmailProps> = ({
-  subjectOptions
+  subjectOptions,
+  setErrorMessage
 }) => {
   const [charsLeft, setCharsLeft] = useState(250)
 
   const { formRef, save } = useVForm()
+  const executeRecaptcha = UseRecaptcha()
 
   useEffect(() => {
     formRef.current?.setData({
@@ -22,10 +29,31 @@ export const ContactSendEmail: React.FC<ContactSendEmailProps> = ({
     } as IMailData)
   }, [formRef])
 
+  const handleSendEmail = async (data: IMailData) => {
+    try {
+      const recaptchaToken = await executeRecaptcha('contact')
+
+      const response = await ContactService.SendEmail(data, recaptchaToken)
+
+      if (response === 'success') {
+        console.log('Email sent successfully')
+      } else {
+        throw response
+      }
+    } catch (error) {
+      if ((error as Error).message === 'Automated behavior detected.') {
+        setErrorMessage('Automated behavior detected.')
+        return
+      }
+
+      setErrorMessage('Error while send email.')
+    }
+  }
+
   return (
     <VForm
       ref={formRef}
-      onSubmit={data => console.log(data)}
+      onSubmit={handleSendEmail}
       placeholder={undefined}
       onPointerEnterCapture={() => {}}
       onPointerLeaveCapture={() => {}}
