@@ -1,36 +1,18 @@
-import { useEffect, useState } from 'react'
+import { TSubjectValueOptions } from '../../shared/services/ContactService'
+import { ContactInfoList, ContactSendEmail } from './components'
 import { GitHub, LinkedIn, WhatsApp } from '@mui/icons-material'
-import { VTextField } from '../../shared/components'
-import { useVForm } from '../../shared/forms'
-import { Form } from '@unform/web'
 import {
   useMediaQuery,
   IconButton,
   Typography,
-  MenuItem,
-  Button,
   Theme,
   Paper,
   Box
 } from '@mui/material'
 
-type TSubjectValueOptions =
-  | 'question'
-  | 'suggestion'
-  | 'bug'
-  | 'removal'
-  | 'abuse-report'
-  | 'other'
-
-interface ISubjectOption {
-  value: string
+export interface ISubjectOption {
+  value: TSubjectValueOptions
   label: string
-}
-
-interface IMailData {
-  name: string
-  subject: TSubjectValueOptions
-  message: string
 }
 
 const subjectOptions: ISubjectOption[] = [
@@ -61,16 +43,7 @@ const subjectOptions: ISubjectOption[] = [
 ]
 
 export const Contact = () => {
-  const [charsLeft, setCharsLeft] = useState(250)
-
   const isUpMd = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const { formRef, save } = useVForm()
-
-  useEffect(() => {
-    formRef.current?.setData({
-      subject: 'question'
-    } as IMailData)
-  }, [formRef])
 
   return (
     <Box
@@ -129,75 +102,7 @@ export const Contact = () => {
             free to get in touch. The LinkIt is an experimental project, and I'd
             love to hear your suggestions or answer questions!
           </Typography>
-
-          <Box
-            pl={{ md: 2 }}
-            mt={{ xs: 2, sm: 4 }}
-            display="flex"
-            flexDirection="column"
-            gap={2}
-          >
-            <Typography
-              display="flex"
-              gap={2}
-              alignItems="center"
-              color="textSecondary"
-              sx={theme => ({
-                [theme.breakpoints.down('md')]: {
-                  color: '#bbb'
-                }
-              })}
-            >
-              <Box
-                component="img"
-                width="40"
-                height="40"
-                src={`https://img.icons8.com/?size=40&id=pB1P8RtAJn4H&format=png&color=${isUpMd ? '1f1f1f' : 'bbbbbb'}`}
-                alt="Programmer icon"
-              />
-              Aaron Stewart Martinez
-            </Typography>
-            <Typography
-              display="flex"
-              gap={2}
-              alignItems="center"
-              color="textSecondary"
-              sx={theme => ({
-                [theme.breakpoints.down('md')]: {
-                  color: '#bbb'
-                }
-              })}
-            >
-              <Box
-                component="img"
-                width="40"
-                height="40"
-                src={`https://img.icons8.com/?size=40&id=63&format=png&color=${isUpMd ? '1f1f1f' : 'bbbbbb'}`}
-                alt="Email icon"
-              />
-              aaronstmart.dev@gmail.com
-            </Typography>
-            <Typography
-              display="flex"
-              gap={2}
-              alignItems="center"
-              color="textSecondary"
-              sx={theme => ({
-                [theme.breakpoints.down('md')]: {
-                  color: '#bbb'
-                }
-              })}
-            >
-              <Box
-                component="img"
-                width="40"
-                height="40"
-                src={`https://img.icons8.com/?size=40&id=53438&format=png&color=${isUpMd ? '1f1f1f' : 'bbbbbb'}`}
-                alt="Phone icon"
-              />
-              +55 21 99455-5856
-            </Typography>
-          </Box>
+          <ContactInfoList isUpMd={isUpMd} />
           <Box
             position={{ xs: 'relative', sm: 'absolute' }}
             mt={2}
@@ -312,68 +217,7 @@ export const Contact = () => {
             If you have any questions, suggestions or problems, please fill in
             the form below. We'll get back to you as soon as possible!
           </Typography>
-          <Form
-            ref={formRef}
-            onSubmit={data => console.log(data)}
-            placeholder={undefined}
-            onPointerEnterCapture={() => {}}
-            onPointerLeaveCapture={() => {}}
-          >
-            <Box display="flex" flexDirection="column" gap={3} pl={2} mt={4}>
-              <VTextField
-                variant="custumOutlined"
-                name="name"
-                label="Name"
-                placeholder="your name"
-                fullWidth={false}
-              />
-              <VTextField
-                variant="custumOutlined"
-                name="subject"
-                label="Subject"
-                select
-                fullWidth={false}
-              >
-                {subjectOptions.map(option => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </VTextField>
-              <VTextField
-                variant="custumOutlined"
-                name="message"
-                label="Message"
-                placeholder="Message"
-                multiline
-                rows={5}
-                maxLength={250}
-                helperText={
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    sx={{ color: '#bbb' }}
-                  >
-                    Remaining characters {charsLeft}
-                  </Typography>
-                }
-                onChange={e => {
-                  setCharsLeft(250 - e.target.value.length)
-                }}
-              />
-              <Button
-                sx={{
-                  textTransform: 'none',
-                  width: 100,
-                  borderRadius: 4
-                }}
-                variant="contained"
-                onClick={save}
-              >
-                Send
-              </Button>
-            </Box>
-          </Form>
+          <ContactSendEmail subjectOptions={subjectOptions} />
         </Box>
       </Box>
     </Box>
