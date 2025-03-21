@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import com.linkIt.api.application.controller.ApiController;
 import com.linkIt.api.domain.dtos.auth.EmailConfirmationDTO;
+import com.linkIt.api.domain.dtos.contact.MailDTO;
 import com.linkIt.api.domain.exceptions.auth.SendConfirmationMailException;
 
 import jakarta.mail.MessagingException;
@@ -72,6 +72,35 @@ public class EmailService {
         } catch (MailException | MessagingException ex) {
             ex.printStackTrace();
             throw new SendConfirmationMailException("An error occurred while sending the password recovery mail");
+        }
+    }
+
+    public String sendContactEmail(MailDTO mailDTO, String email) {
+        try {
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setTo("aaronstmart.dev@gmail.com");
+            helper.setSubject("Contact by LinkIt");
+            helper.setFrom("link.it@zohomail.com");
+
+            Context context = new Context();
+            context.setVariable("name", mailDTO.name());
+            context.setVariable("subject", mailDTO.subject());
+            context.setVariable("message", mailDTO.message());
+            context.setVariable("email", email);
+
+            String htmlContent = templateEngine.process("contactEmailMessage", context);
+
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            return "sended";
+
+        } catch (MailException | MessagingException ex) {
+            ex.printStackTrace();
+            throw new SendConfirmationMailException("An error occurred while sending contact mail");
         }
     }
 }

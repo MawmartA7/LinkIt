@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+    <title>New Website Message</title>
+</head>
+
+<body
+    style="background-color: #424242; font-family: 'Roboto', Arial, sans-serif; margin: 0; padding: 0; height: 600px;">
+    <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0"
+        style="margin: 40px 0; background-color: #424242;">
+        <tr>
+            <td align="center" vertical-align="middle" style="padding: 0;">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                    style="max-width: 600px; background-color: #212121; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center"
+                            style="background-color: #4763E4; color: #ffffff; padding: 20px; border-radius: 10px 10px 0 0;">
+                            <h1 style="margin: 0; font-size: 28px;">New Message Received</h1>
+                        </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <p style="color: #4763E4; margin: 0 0 20px; font-size: 22px;" th:text="${subject}">
+                                Message Subject
+                            </p>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                style="background-color: #424242; border-radius: 5px; padding: 10px; margin-top: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="color: #fafafa; font-size: 16px; line-height: 1.6;"
+                                            th:text="${message}">
+                                            Message content (maximum 250 characters) Lorem ipsum dolor sit amet
+                                            consectetur adipisicing elit. Veniam earum qui, id ipsum asperiores quaerat!
+                                            Inventore, velit optio incidunt molestiae modi placeat, est veniam
+                                            perspiciatis, ipsam sint iste aut fuga.
+                                        </p>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <hr style="border-color: #5c5c5c9f;">
+                            <!-- Sender Info -->
+                            <p style="color: #4763E4; margin: 0 0 20px; font-size: 22px;">Contact info</p>
+
+                            <p style="color: #fafafa; margin: 5px 0;">
+                                <strong>From:</strong>
+                                <span style="color: #4763E4;" th:text="${email}">email@example.com</span>
+                            </p>
+                            <p style="color: #fafafa; margin: 5px 0;">
+                                <strong>Name:</strong>
+                                <span style="color: #4763E4;" th:text="${name}">Sender Name</span>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
