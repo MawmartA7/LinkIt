@@ -25,7 +25,7 @@ export const ContactSendEmail: React.FC<ContactSendEmailProps> = ({
   const [charsLeft, setCharsLeft] = useState(250)
 
   const { formRef, save } = useVForm()
-  const executeRecaptcha = UseRecaptcha()
+  const { executeRecaptcha } = UseRecaptcha()
 
   useEffect(() => {
     formRef.current?.setData({

@@ -1,7 +1,9 @@
 import { useAuthContext } from '../shared/contexts/AuthContext'
 import { LoadingPage } from '../pages/loadingPage/LoadingPage'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { LogedLayout, AuthLayout } from '../shared/layouts'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { UseRecaptcha } from '../shared/hooks/UseRecaptcha'
+import { RedirectToHome } from './RedirectToHome'
 import {
   PasswordRecovery,
   LinkUnavailable,
@@ -19,11 +21,25 @@ import {
 export const Router = () => {
   const { isAuthenticated, firstLoad } = useAuthContext()
 
+  const location = useLocation()
+
+  const recaptchaEnabled =
+    location.pathname === '/register' ||
+    location.pathname === '/login' ||
+    location.pathname === '/contact'
+
+  UseRecaptcha(recaptchaEnabled)
+
+  if (firstLoad)
+    return (
+      <Routes>
+        <Route path="*" element={<LoadingPage />} />
+      </Routes>
+    )
+
   return (
     <Routes>
-      {firstLoad ? (
-        <Route path="*" element={<LoadingPage />} />
-      ) : isAuthenticated ? (
+      {isAuthenticated ? (
         <>
           <Route
             path="/"
@@ -57,10 +73,12 @@ export const Router = () => {
               </LogedLayout>
             }
           />
+          <Route path="*" element={<RedirectToHome />} />
         </>
       ) : (
         <>
           <Route path="/" element={<EntryPage />} />
+          <Route path="*" element={<RedirectToHome />} />
           <Route
             path="/login"
             element={
@@ -95,7 +113,6 @@ export const Router = () => {
           />
         </>
       )}
-      <Route path="*" element={<Navigate to="/" />} />
       <Route path="/link-unavailable" element={<LinkUnavailable />} />
       <Route path="/link-not-found" element={<LinkNotFound />} />
     </Routes>
