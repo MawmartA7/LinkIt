@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import { Environment } from '../../environment'
+import { IMailData } from '../../services/ContactService'
 
 interface IAuthData {
   email: string
@@ -107,3 +108,31 @@ export const shortenUrl = {
   urlIdIsValid,
   createShortenedLink
 }
+
+export const contactValidationSchema: yup.ObjectSchema<IMailData> = yup
+  .object()
+  .shape({
+    name: yup
+      .string()
+      .trim()
+      .max(50, 'The name must have a max of 50 chars')
+      .min(3, 'The name must be at least 3 chars')
+      .required(),
+    subject: yup
+      .string()
+      .oneOf([
+        'question',
+        'suggestion',
+        'bug',
+        'removal',
+        'abuse-report',
+        'other'
+      ])
+      .required(),
+    message: yup
+      .string()
+      .trim()
+      .max(250, 'The message must have a max of 250 chars')
+      .min(10, 'The message must be at least 10 chars')
+      .required()
+  })

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.linkIt.api.domain.exceptions.recaptcha.RecaptchaException;
+import com.linkIt.api.domain.models.enums.RecaptchaAction;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +29,14 @@ public class RecaptchaService {
                 .bodyToMono(Map.class)
                 .block();
 
-        if (response != null) {
-            Boolean success = (Boolean) response.get("success");
+        if (response != null && (Boolean) response.get("success")) {
+            if (!RecaptchaAction.VerifyValue((String) response.get("action"))) {
+                throw new RecaptchaException("Invalid action");
+            }
+
             Double score = (Double) response.get("score");
 
-            return success != null && success && score != null && score >= 0.5;
+            return score != null && score >= 0.5;
         }
 
         throw new RecaptchaException();

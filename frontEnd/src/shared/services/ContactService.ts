@@ -1,4 +1,5 @@
 import { Api } from './axios-config'
+import { AxiosError } from 'axios'
 
 export type TSubjectValueOptions =
   | 'question'
@@ -22,12 +23,16 @@ const SendEmail = async (data: IMailData, token: string) => {
       return 'success'
     }
 
-    if (response.status === 403) {
-      return new Error('Automated behavior detected.')
-    }
-
     return new Error('Error while contact by send an email to dev')
   } catch (error) {
+    if (error instanceof AxiosError)
+      if (
+        error.response?.status &&
+        (error.response?.data as { code: string }).code === 'BOT_DETECTED'
+      ) {
+        return new Error('Automated behavior detected.')
+      }
+
     return new Error((error as { message: string }).message)
   }
 }

@@ -48,6 +48,7 @@ const subjectOptions: ISubjectOption[] = [
 
 export const Contact = () => {
   const [errorMessage, setErrorMessage] = useState<string>()
+  const [isSuccessful, setIsSuccessful] = useState<boolean>(false)
 
   const isUpMd = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
@@ -57,6 +58,7 @@ export const Contact = () => {
     }
 
     setErrorMessage(undefined)
+    setIsSuccessful(false)
   }
 
   return (
@@ -234,11 +236,12 @@ export const Contact = () => {
           <ContactSendEmail
             subjectOptions={subjectOptions}
             setErrorMessage={message => setErrorMessage(message)}
+            setIsSuccessful={isSuccessful => setIsSuccessful(isSuccessful)}
           />
         </Box>
       </Box>
       <Snackbar
-        open={!!errorMessage}
+        open={!!errorMessage || isSuccessful}
         autoHideDuration={10000}
         onClose={(_, reason) => handleCloseSnackBar(reason)}
         sx={{
@@ -246,14 +249,25 @@ export const Contact = () => {
           width: 260
         }}
       >
-        <Alert
-          onClose={() => handleCloseSnackBar()}
-          severity="error"
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {errorMessage}
-        </Alert>
+        {isSuccessful ? (
+          <Alert
+            onClose={() => handleCloseSnackBar()}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            Your message was sent successfully!
+          </Alert>
+        ) : errorMessage ? (
+          <Alert
+            onClose={() => handleCloseSnackBar()}
+            severity="error"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {errorMessage}
+          </Alert>
+        ) : undefined}
       </Snackbar>
     </Box>
   )
