@@ -16,7 +16,7 @@ interface ICreateData {
 const emailIsValid: yup.StringSchema = yup
   .string()
   .email('Invalid email')
-  .max(254, 'The email must have a max of 20 chars')
+  .max(254, 'The email must have a max of 254 chars')
 
 const authValidationSchema: yup.ObjectSchema<IAuthData> = yup.object().shape({
   email: emailIsValid.required(),
@@ -93,19 +93,22 @@ const urlIdIsValid: yup.StringSchema = yup
     }
   )
 
+const shortenedAliasIsValid: yup.StringSchema = yup
+  .string()
+  .trim()
+  .min(5, 'Ops. The alias must be at least 5 chars')
+  .max(20, 'Ops. The alias must have a max of 20 chars')
+
 const createShortenedLink: yup.ObjectSchema<ICreateData> = yup.object().shape({
   url: urlIsValid.required(),
-  alias: yup
-    .string()
-    .min(5, 'Ops. The alias must be at least 5 chars')
-    .max(20, 'Ops. The alias must have a max of 20 chars')
-    .required(),
+  alias: shortenedAliasIsValid.required(),
   id: urlIdIsValid.optional()
 })
 
 export const shortenUrl = {
   urlIsValid,
   urlIdIsValid,
+  shortenedAliasIsValid,
   createShortenedLink
 }
 

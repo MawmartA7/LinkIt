@@ -144,21 +144,17 @@ export const Home = () => {
             name="alias"
             disabled={isLoading}
             onChange={e => {
-              if (e.target.value.length < 5) {
-                formRef.current?.setFieldError(
-                  'alias',
-                  'Ops.  The alias must be at least 5 chars'
-                )
-                return
+              try {
+                shortenUrl.shortenedAliasIsValid.validateSync(e.target.value)
+
+                formRef.current?.setFieldError('alias', '')
+              } catch (error) {
+                if (error instanceof yup.ValidationError) {
+                  formRef.current?.setFieldError('alias', error.message)
+                } else {
+                  console.error(error)
+                }
               }
-              if (e.target.value.length > 20) {
-                formRef.current?.setFieldError(
-                  'alias',
-                  'Ops. The alias must have a max of 20 chars'
-                )
-                return
-              }
-              formRef.current?.setFieldError('alias', '')
             }}
           />
         </Box>
