@@ -62,7 +62,7 @@ export const LinkDetailsGrid: React.FC<ILinkdetailsGridProps> = ({
                   height: 64
                 }
               })}
-              src={`https://api.faviconkit.com/${linkDetails.originalDomain}/128`}
+              src={`https://img.logo.dev/${linkDetails.originalDomain}?token=pk_QnDXn6GPRnapH_aan1RIDQ&retina=true`}
             />
           )}
         </Box>

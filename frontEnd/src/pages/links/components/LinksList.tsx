@@ -158,7 +158,7 @@ export const LinksList: React.FC<LinksListProps> = ({
             <ListItemAvatar sx={{ minWidth: 24, mr: 1 }}>
               <Avatar
                 sx={{ width: 24, height: 24 }}
-                src={`https://api.faviconkit.com/${row.originalDomain}/128`}
+                src={`https://img.logo.dev/${row.originalDomain}?token=pk_QnDXn6GPRnapH_aan1RIDQ&size=24&retina=true`}
               />
             </ListItemAvatar>
             <ListItemText>{row.alias}</ListItemText>

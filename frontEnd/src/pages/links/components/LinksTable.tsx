@@ -169,7 +169,7 @@ export const LinksTable: React.FC<ILinksTableProps> = ({
                   })}
                 >
                   <Avatar
-                    src={`https://api.faviconkit.com/${row.originalDomain}/128`}
+                    src={`https://img.logo.dev/${row.originalDomain}?token=pk_QnDXn6GPRnapH_aan1RIDQ&size=24&retina=true`}
                     sx={theme => ({
                       [theme.breakpoints.down('lg')]: {
                         width: 24,
