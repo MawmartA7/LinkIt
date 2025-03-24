@@ -41,6 +41,10 @@ export const ContactSendEmail: React.FC<ContactSendEmailProps> = ({
 
       const recaptchaToken = await executeRecaptcha('contact')
 
+      if (!recaptchaToken) {
+        throw new Error('Recaptcha token is empty')
+      }
+
       const response = await ContactService.SendEmail(
         validatedData,
         recaptchaToken

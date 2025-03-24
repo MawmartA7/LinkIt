@@ -35,10 +35,10 @@ export const UseRecaptcha = (enabled?: boolean) => {
 
   const executeRecaptcha = useCallback(async (action: TRecaptchaAction) => {
     if ((window as any).grecaptcha) {
-      return await (window as any).grecaptcha.execute(
+      return (await (window as any).grecaptcha.execute(
         Environment.RECAPTCHA_SITE_KEY,
         { action }
-      )
+      )) as string
     }
   }, [])
   return { executeRecaptcha }

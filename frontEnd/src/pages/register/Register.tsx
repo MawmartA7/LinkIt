@@ -19,6 +19,7 @@ import {
   Box
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { UseRecaptcha } from '../../shared/hooks/UseRecaptcha'
 
 interface IRegisterData {
   email: string
@@ -42,6 +43,8 @@ export const Register = () => {
   const navigate = useNavigate()
 
   const { formRef, isReady, save } = useVForm()
+  const { executeRecaptcha } = UseRecaptcha()
+
   const { login } = useAuthContext()
 
   useEffect(() => {
@@ -72,12 +75,17 @@ export const Register = () => {
         return
       }
 
+      const recaptchaToken = await executeRecaptcha('register')
+
+      if (!recaptchaToken) {
+        throw new Error('Recaptcha token is empty')
+      }
+
       const response = await AuthService.register(
         validatedData.email,
-        validatedData.password
+        validatedData.password,
+        recaptchaToken
       )
-
-      console.log(response)
 
       if (response === 'success') {
         setUserData(validatedData)
@@ -85,15 +93,7 @@ export const Register = () => {
         return
       }
 
-      if (response.message === 'Request failed with status code 409') {
-        setErrorMessage('The email is already in use')
-        formRef.current?.setErrors({
-          email: 'The email is already in use'
-        })
-        return
-      }
-
-      setErrorMessage('Authentication error')
+      throw response
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const validationErrors: { [key: string]: string } = {}
@@ -115,9 +115,23 @@ export const Register = () => {
           formRef.current?.setErrors(validationErrors)
           setErrorMessage('The data should be valid')
         }
-      } else {
-        setErrorMessage('Authentication error')
       }
+      if (error instanceof Error) {
+        if (error.message === 'Request failed with status code 409') {
+          setErrorMessage('The email is already in use')
+          formRef.current?.setErrors({
+            email: 'The email is already in use'
+          })
+          return
+        }
+
+        if (error.message === 'Automated behavior detected.') {
+          setErrorMessage('Automated behavior detected.')
+          return
+        }
+      }
+
+      setErrorMessage('Authentication error')
     } finally {
       setIsLoading(false)
     }
@@ -130,10 +144,20 @@ export const Register = () => {
     }
 
     try {
+      const recaptchaToken = await executeRecaptcha('login')
+
+      if (!recaptchaToken) {
+        throw new Error('Recaptcha token is empty')
+      }
+
       const response = await AuthService.confirmEmail(`${code}`, userData.email)
 
       if (response === 'success') {
-        const responseLogin = await login(userData.email, userData.password)
+        const responseLogin = await login(
+          userData.email,
+          userData.password,
+          recaptchaToken
+        )
 
         if (responseLogin === 'success') {
           navigate('/')
@@ -141,6 +165,13 @@ export const Register = () => {
       }
       setErrorMessage('Invalid code')
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'Automated behavior detected.') {
+          setCodeErrorMessage('Automated behavior detected.')
+          return
+        }
+      }
+
       setErrorMessage('Invalid code')
       console.error(error)
     }

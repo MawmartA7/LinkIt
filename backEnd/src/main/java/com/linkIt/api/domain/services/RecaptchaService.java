@@ -18,7 +18,8 @@ public class RecaptchaService {
     @Value("${recaptcha.secret-key}")
     private String secretKey;
 
-    public boolean verifyRecaptcha(String token) {
+    public boolean verifyRecaptcha(String token, RecaptchaAction currentAction) {
+
         String url = "https://www.google.com/recaptcha/api/siteverify?secret=" + secretKey + "&response=" + token;
 
         WebClient webClient = WebClient.create();
@@ -30,7 +31,8 @@ public class RecaptchaService {
                 .block();
 
         if (response != null && (Boolean) response.get("success")) {
-            if (!RecaptchaAction.VerifyValue((String) response.get("action"))) {
+            if (!RecaptchaAction.VerifyValue((String) response.get("action"))
+                    && currentAction.equals((RecaptchaAction) response.get("action"))) {
                 throw new RecaptchaException("Invalid action");
             }
 

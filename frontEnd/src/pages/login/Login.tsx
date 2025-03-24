@@ -17,6 +17,7 @@ import {
   Icon,
   Box
 } from '@mui/material'
+import { UseRecaptcha } from '../../shared/hooks/UseRecaptcha'
 
 interface ILoginData {
   email: string
@@ -28,6 +29,7 @@ export const Login = () => {
   const [errorMessage, setErrorMessage] = useState<string>()
 
   const { formRef, save } = useVForm()
+  const { executeRecaptcha } = UseRecaptcha()
 
   const { login, isCheckingAuth } = useAuthContext()
 
@@ -42,13 +44,24 @@ export const Login = () => {
         }
       )
 
-      const response = await login(validatedData.email, validatedData.password)
+      const recaptchaToken = await executeRecaptcha('login')
 
-      if (response) {
+      if (!recaptchaToken) {
+        throw new Error('Recaptcha token is empty')
+      }
+
+      const response = await login(
+        validatedData.email,
+        validatedData.password,
+        recaptchaToken
+      )
+
+      if (response === 'success') {
         navigate('/')
         return
       }
-      setErrorMessage('Authentication error')
+
+      throw response
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const validationErrors: { [key: string]: string } = {}
@@ -59,9 +72,13 @@ export const Login = () => {
         })
         formRef.current?.setErrors(validationErrors)
         setErrorMessage('The data should be valid')
-      } else {
-        setErrorMessage('Authentication error')
+        return
       }
+      if ((error as Error).message === 'Automated behavior detected.') {
+        setErrorMessage('Automated behavior detected.')
+        return
+      }
+      setErrorMessage('Authentication error')
     }
   }
 

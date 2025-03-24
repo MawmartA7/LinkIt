@@ -11,7 +11,11 @@ interface IAuthContextData {
   isAuthenticated: boolean
   isCheckingAuth: boolean
   firstLoad: boolean
-  login: (email: string, password: string) => Promise<string | undefined>
+  login: (
+    email: string,
+    password: string,
+    recaptchaToken: string
+  ) => Promise<string | Error>
   logout: () => void
 }
 
@@ -44,24 +48,33 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
     refresh()
   }, [])
 
-  const handleLogin = useCallback(async (email: string, password: string) => {
-    setIsLoading(true)
+  const handleLogin = useCallback(
+    async (email: string, password: string, recaptchaToken: string) => {
+      setIsLoading(true)
 
-    try {
-      const response = await AuthService.login(email, password)
+      try {
+        const response = await AuthService.login(
+          email,
+          password,
+          recaptchaToken
+        )
 
-      if (response instanceof Error) throw response
+        if (response instanceof Error) throw response
 
-      if (response === 'success') {
-        setIsLoged(true)
-        return response
+        if (response === 'success') {
+          setIsLoged(true)
+          return response
+        }
+
+        throw new Error('Error while logging in')
+      } catch (error) {
+        return new Error((error as Error).message)
+      } finally {
+        setIsLoading(false)
       }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+    },
+    []
+  )
 
   const handleLogout = useCallback(async () => {
     setIsLoading(true)

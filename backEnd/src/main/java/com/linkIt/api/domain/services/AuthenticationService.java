@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.linkIt.api.domain.models.EmailConfirmation;
 import com.linkIt.api.domain.models.User;
 import com.linkIt.api.domain.models.UserRole;
+import com.linkIt.api.domain.models.enums.RecaptchaAction;
 import com.linkIt.api.domain.dtos.auth.AdminRegisterDTO;
 import com.linkIt.api.domain.dtos.auth.AuthDTO;
 import com.linkIt.api.domain.dtos.auth.EmailConfirmationDTO;
@@ -24,6 +25,7 @@ import com.linkIt.api.domain.exceptions.auth.RecoveryPasswordException;
 import com.linkIt.api.domain.exceptions.auth.TokenException;
 import com.linkIt.api.domain.exceptions.auth.UserAlreadyExistsException;
 import com.linkIt.api.domain.exceptions.auth.UserNotFoundException;
+import com.linkIt.api.domain.exceptions.recaptcha.NotHumanException;
 import com.linkIt.api.infra.scheduler.EmailConfirmationSchedulerService;
 import com.linkIt.api.infra.security.TokenService;
 import com.linkIt.api.domain.repositories.EmailConfirmationRepository;
@@ -50,7 +52,13 @@ public class AuthenticationService {
 
     private final EmailService emailService;
 
+    private final RecaptchaService recaptchaService;
+
     public TokenDTO[] login(AuthDTO data) {
+
+        if (!recaptchaService.verifyRecaptcha(data.recaptchaToken(), RecaptchaAction.login)) {
+            throw new NotHumanException();
+        }
 
         User user = (User) this.repository.findByLogin(data.login());
 
@@ -97,6 +105,11 @@ public class AuthenticationService {
     }
 
     public void userRegister(AuthDTO data) {
+
+        if (!recaptchaService.verifyRecaptcha(data.recaptchaToken(), RecaptchaAction.register)) {
+            throw new NotHumanException();
+        }
+
         AdminRegisterDTO register = new AdminRegisterDTO(data.login(), data.password(), UserRole.USER);
 
         this.register(register);
@@ -151,8 +164,6 @@ public class AuthenticationService {
     public void recoveryPassword(RecoveryPasswordDTO recoveryPasswordDTO) {
 
         String email = this.tokenService.validateGenericToken(recoveryPasswordDTO.token());
-
-        System.out.println("deb - " + email);
 
         User user = (User) this.repository.findByLogin(email);
 

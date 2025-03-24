@@ -1,32 +1,65 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AxiosError } from 'axios'
 import { Api } from './axios-config'
 
 interface IToken {
   token: string
 }
 
-const login = async (login: string, password: string) => {
+const login = async (
+  login: string,
+  password: string,
+  recaptchaToken: string
+) => {
   try {
-    const response = await Api.post('/auth/login', { login, password }, {
-      _isAuthService: true
-    } as any)
+    const response = await Api.post(
+      '/auth/login',
+      { login, password, recaptchaToken },
+      {
+        _isAuthService: true
+      } as any
+    )
     if (response.status === 200) return 'success'
 
     return new Error('Error while logging in')
   } catch (error) {
+    if (error instanceof AxiosError)
+      if (
+        error.response?.status &&
+        (error.response?.data as { code: string }).code === 'BOT_DETECTED'
+      ) {
+        return new Error('Automated behavior detected.')
+      }
+
     return new Error((error as { message: string }).message)
   }
 }
 
-const register = async (login: string, password: string) => {
+const register = async (
+  login: string,
+  password: string,
+  recaptchaToken: string
+) => {
   try {
-    const response = await Api.post('/auth/register', { login, password }, {
-      _isAuthService: true
-    } as any)
+    const response = await Api.post(
+      '/auth/register',
+      { login, password, recaptchaToken },
+      {
+        _isAuthService: true
+      } as any
+    )
     if (response.status === 201) return 'success'
 
     return new Error('Error while logging in')
   } catch (error) {
+    if (error instanceof AxiosError)
+      if (
+        error.response?.status &&
+        (error.response?.data as { code: string }).code === 'BOT_DETECTED'
+      ) {
+        return new Error('Automated behavior detected.')
+      }
+
     return new Error((error as { message: string }).message)
   }
 }

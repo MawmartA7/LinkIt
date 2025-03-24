@@ -15,9 +15,12 @@ export interface IMailData {
   message: string
 }
 
-const SendEmail = async (data: IMailData, token: string) => {
+const SendEmail = async (data: IMailData, recaptchaToken: string) => {
   try {
-    const response = await Api.post('/contact/send-email', { ...data, token })
+    const response = await Api.post('/contact/send-email', {
+      ...data,
+      recaptchaToken
+    })
 
     if (response.status === 204) {
       return 'success'
